@@ -2,6 +2,11 @@
   "name": "scufftrainapi",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "build": "bun build",
+    "dev": "bun dev",
+    "start": "bun run index.ts"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },

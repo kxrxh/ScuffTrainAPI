@@ -1,6 +1,19 @@
-version: "3.9"
 services:
-  postgres:
+  # nuxt-docker:
+  #   build: ./frontend
+  #   container_name: nuxt-docker
+  #   ports:
+  #     - '3000:3000'
+  #   command: ['bun', 'run', 'dev']
+
+  backend-api:
+    build: ./backend
+    container_name: backend-api
+    ports:
+      - '3030:3030'
+    command: ['bun', 'start']
+
+  database:
     container_name: postgres_container
     image: postgres:latest
     environment:
@@ -20,14 +33,3 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 4G
-    networks:
-      - postgres
-
-networks:
-  postgres:
-    driver: bridge

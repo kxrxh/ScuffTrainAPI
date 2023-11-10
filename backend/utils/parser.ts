@@ -49,21 +49,18 @@ export async function parseDislocation(filename: string): Promise<Dislocation[]>
  * @param {string} filename - The name of the CSV file to parse.
  * @return {Stage[]} An array of Stage objects representing the parsed data.
  */
-export function parseStage(filename: string): Stage[] {
+export async function parseStage(filename: string): Promise<Stage[]> {
   const csvFilePath = path.resolve(__dirname, `data/${filename}`);
   const stageHeaders = ["START_CODE", "END_CODE", "LEN"]
   const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
   let temp: Stage[] = [];
-  parse(fileContent, {
+  const parser = parse(fileContent, {
     delimiter: ',',
     columns: stageHeaders,
-  }, (error, result: Stage[]) => {
-    if (error) {
-      console.error(error);
-    }
-    // console.log("Result", result);
-    temp = result;
   });
+  for await (const record of parser) {
+    temp.push(record);
+  }
   return temp;
 }
 
@@ -73,20 +70,17 @@ export function parseStage(filename: string): Stage[] {
  * @param {string} filename - The name of the CSV file to parse.
  * @return {Station[]} An array of Station objects representing the data in the CSV file.
  */
-export function parseStations(filename: string): Station[] {
+export async function parseStations(filename: string): Promise<Station[]> {
   const csvFilePath = path.resolve(__dirname, `data/${filename}`);
   const stationHeaders = ["ST_ID", "LATITUDE", "LONGITUDE"]
   const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
   let temp: Station[] = [];
-  parse(fileContent, {
+  const parser = parse(fileContent, {
     delimiter: ',',
     columns: stationHeaders,
-  }, (error, result: Station[]) => {
-    if (error) {
-      console.error(error);
-    }
-    // console.log("Result", result);
-    temp = result;
   });
+  for await (const record of parser) {
+    temp.push(record);
+  }
   return temp;
 }

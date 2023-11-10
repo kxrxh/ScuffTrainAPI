@@ -77,3 +77,5 @@ export async function loadStationsFromCSV(filename: string) {
         })
     });
 }
+
+await loadStageFromCSV("PEREGON_HACKATON.csv")

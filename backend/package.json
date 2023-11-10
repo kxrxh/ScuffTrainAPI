@@ -16,6 +16,8 @@
   "dependencies": {
     "@prisma/client": "^5.5.2",
     "bunrest": "^1.3.7",
+    "csv-parse": "^5.5.2",
+    "fs": "^0.0.1-security",
     "prisma": "^5.5.2"
   }
 }

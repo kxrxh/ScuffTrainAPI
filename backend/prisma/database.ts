@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
  * @param {number} id - The ID of the start.
  * @returns {Promise<Stage[]>} - A promise that resolves to an array of stages.
  */
-export async function get_stages_by_origin(id: number): Promise<Stage[]> {
+export async function getStagesByOrigin(id: number): Promise<Stage[]> {
     return await prisma.stage.findMany({
         where: {
             start_id: id
@@ -17,7 +17,7 @@ export async function get_stages_by_origin(id: number): Promise<Stage[]> {
     })
 }
 
-export async function get_stage_by_end(id: number): Promise<Stage[]> {
+export async function getStageByEnd(id: number): Promise<Stage[]> {
     return await prisma.stage.findMany({
         where: {
             end_id: id
@@ -25,15 +25,15 @@ export async function get_stage_by_end(id: number): Promise<Stage[]> {
     })
 }
 
-export async function get_stages(): Promise<Stage[]> {
+export async function getStages(): Promise<Stage[]> {
     return await prisma.stage.findMany();
 }
 
-export async function get_all_stations() {
+export async function getAllStations() {
     return await prisma.station.findMany();
 }
 
-export async function get_station_coords(id: number) {
+export async function getStationCoords(id: number) {
     return await prisma.station.findUnique({
         where: {
             id: id

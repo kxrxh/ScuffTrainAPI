@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stage {
+  id       Int     @id @default(autoincrement())
+  start    Station @relation(name: "start_stages", fields: [start_id], references: [id])
+  start_id Int
+  end      Station @relation(name: "end_stages", fields: [end_id], references: [id])
+  end_id   Int
+  length   Float   @default(0)
+}
+
+model Station {
+  id           Int           @id @default(autoincrement())
+  name         String?
+  latitude     Float
+  longitude    Float
+  dislocations Dislocation[] @relation(name: "dislocation")
+  destinations Dislocation[] @relation(name: "destination")
+  start_stages Stage[]       @relation(name: "start_stages")
+  end_stages   Stage[]       @relation(name: "end_stages")
+
+  @@map("StationCoordinates")
+}
+
+model Dislocation {
+  id                     Int      @id @default(autoincrement())
+  wagon_number           Int
+  operation_date         DateTime
+  station_id_dislocation Int
+  dislocation_station    Station  @relation(name: "dislocation", fields: [station_id_dislocation], references: [id])
+  station_id_destination Int
+  destination_station    Station  @relation(name: "destination", fields: [station_id_destination], references: [id])
+  train_index            String
+}

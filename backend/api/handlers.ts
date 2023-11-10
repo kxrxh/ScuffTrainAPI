@@ -127,6 +127,13 @@ export async function getTrainsByOrigin(req: BunRequest, res: BunResponse) {
 }
 
 
+/**
+ * Uploads a file to the server.
+ *
+ * @param {BunRequest} req - the request object
+ * @param {BunResponse} res - the response object
+ * @return {Promise<void>} - a promise that resolves once the file is uploaded
+ */
 export async function postUploadFile(req:BunRequest, res: BunResponse) {
     const body = req.body;
     const params = req.params;

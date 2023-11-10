@@ -3,6 +3,11 @@ import { BunResponse } from "bunrest/src/server/response";
 import { getStationCoordsById, getStationStages, getStations, getTrainById, getTrains, getTrainsByDestination, getTrainsByOrigin, postUploadFile } from "./handlers";
 import { Router } from "bunrest/src/router/router";
 
+/**
+ * Initializes the API by setting up the routes.
+ *
+ * @param {BunServer} app - The bunrest server object.
+ */
 export function initApi(app: any) {
     const routerV1: Router = app.router();
 

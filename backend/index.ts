@@ -1,15 +1,14 @@
 import server from "bunrest";
+import { initApi } from "./api/api";
 
 /**
  * Starts the server and listens on the specified port. 
  */
-function main(): void {
-    const port = process.env.PORT || 3000;
+function main() {
+    const port = process.env.PORT || 5051;
 
     const app = server();
-    app.get('/', (req, res) => {
-        res.status(200).json({ message: req.query });
-    });
+    initApi(app);
 
     app.listen(port, () => console.log("Listening on port:", port));
 }

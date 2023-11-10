@@ -9,33 +9,56 @@ datasource db {
 
 model Stage {
   id       Int     @id @default(autoincrement())
+  length   Float   @default(0)
+
   start    Station @relation(name: "start_stages", fields: [start_id], references: [id])
   start_id Int
+
   end      Station @relation(name: "end_stages", fields: [end_id], references: [id])
   end_id   Int
-  length   Float   @default(0)
+
 }
 
 model Station {
-  id           Int           @id @default(autoincrement())
-  name         String?
-  latitude     Float
-  longitude    Float
-  dislocations Dislocation[] @relation(name: "dislocation")
-  destinations Dislocation[] @relation(name: "destination")
-  start_stages Stage[]       @relation(name: "start_stages")
-  end_stages   Stage[]       @relation(name: "end_stages")
+  id                 Int      @id @default(autoincrement())
+  name               String?
+  latitude           Float
+  longitude          Float
+
+  start_stages       Stage[]  @relation(name: "start_stages")
+  end_stages         Stage[]  @relation(name: "end_stages")
+
+  start_trains       Train[]  @relation(name: "start_station")
+  end_trains         Train[]  @relation(name: "end_station")
+
+  wagons_last        Wagon[] @relation(name: "wagon_last")
+  wagons_destination Wagon[] @relation(name: "wagon_destination")
 
   @@map("StationCoordinates")
 }
 
-model Dislocation {
-  id                     Int      @id @default(autoincrement())
-  wagon_number           Int
-  operation_date         DateTime
-  station_id_dislocation Int
-  dislocation_station    Station  @relation(name: "dislocation", fields: [station_id_dislocation], references: [id])
-  station_id_destination Int
-  destination_station    Station  @relation(name: "destination", fields: [station_id_destination], references: [id])
-  train_index            String
+model Train {
+  id       Int      @id @default(autoincrement())
+  
+  start    Station  @relation(name: "start_station", fields: [start_id], references: [id])
+  start_id Int
+
+  end      Station  @relation(name: "end_station", fields: [end_id], references: [id])
+  end_id   Int
+  
+  wagons   Wagon[]
+}
+
+model Wagon {
+  id                   Int      @id @default(autoincrement())
+  train_id             Int
+  train                Train    @relation(fields: [train_id], references: [id])
+
+  operation_date       DateTime
+
+  last_station         Station  @relation(name: "wagon_last", fields: [last_station_id], references: [id])
+  last_station_id      Int
+
+  wagon_destination    Station  @relation(name: "wagon_destination", fields: [wagon_destination_id], references: [id])
+  wagon_destination_id Int
 }

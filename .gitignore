@@ -176,3 +176,5 @@ dist
 
 pgdata
 InitDatabase
+
+backend/data/*

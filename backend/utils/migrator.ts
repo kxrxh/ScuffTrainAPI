@@ -1,4 +1,4 @@
-import { parseStage, parseDislocation, parseStations } from "./parser";
+import { parseStage, parseDislocation, parseStations } from "./csvParser";
 import { PrismaClient, Stage, Station, Dislocation } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -16,8 +16,8 @@ export async function loadDislocationFromCSV(filename: string) {
             data: {
                 wagon_number: 0,
                 operation_date: new Date(dislocation.OPERDATE),
-                station_id_dislocation: dislocation.ST_ID_DISL-0,
-                station_id_destination: dislocation.ST_ID_DEST-0,
+                station_id_dislocation: dislocation.ST_ID_DISL - 0,
+                station_id_destination: dislocation.ST_ID_DEST - 0,
                 train_index: dislocation.TRAIN_INDEX,
             },
         }).then(async () => {
@@ -40,9 +40,9 @@ export async function loadStageFromCSV(filename: string) {
     (await parseStage(filename)).map(async (dislocation) => {
         const _ = await prisma.stage.create({
             data: {
-                start_id: dislocation.START_CODE-0,
-                end_id: dislocation.END_CODE-0,
-                length: dislocation.LEN-0,
+                start_id: dislocation.START_CODE - 0,
+                end_id: dislocation.END_CODE - 0,
+                length: dislocation.LEN - 0,
             },
         }).then(async () => {
             await prisma.$disconnect()
@@ -65,9 +65,9 @@ export async function loadStationsFromCSV(filename: string) {
     (await parseStations(filename)).map(async (station) => {
         const _ = await prisma.station.create({
             data: {
-                id: station.ST_ID-0,
-                latitude: station.LATITUDE-0,
-                longitude: station.LONGITUDE-0,
+                id: station.ST_ID - 0,
+                latitude: station.LATITUDE - 0,
+                longitude: station.LONGITUDE - 0,
             },
         }).then(async () => {
             await prisma.$disconnect()

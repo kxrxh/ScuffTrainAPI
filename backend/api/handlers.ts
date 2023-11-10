@@ -1,6 +1,7 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
 import { getAllStations, getStagesByOrigin, getStationCoords } from "../prisma/database";
+import { loadDislocationFromCSV, loadStageFromCSV, loadStationsFromCSV } from "../utils/migrator";
 
 
 /**
@@ -72,7 +73,6 @@ export async function getStationStages(req: BunRequest, res: BunResponse) {
     res.status(200).json({ stages: stages });
 }
 
-
 /**
  * Retrieves all available stations.
  * 
@@ -82,7 +82,6 @@ export async function getStationStages(req: BunRequest, res: BunResponse) {
 export async function getStations(req: BunRequest, res: BunResponse) {
     res.status(200).json({ stations: await getAllStations() });
 }
-
 
 /**
  * Retrieves all available trains.
@@ -94,7 +93,6 @@ export async function getStations(req: BunRequest, res: BunResponse) {
 export async function getTrains(req: BunRequest, res: BunResponse) {
     throw new Error("Function not implemented.");
 }
-
 
 /**
  * Retrieves a train information by its ID.
@@ -127,7 +125,14 @@ export async function getTrainsByOrigin(req: BunRequest, res: BunResponse) {
 }
 
 
-export async function postUploadFile(req:BunRequest, res: BunResponse) {
+/**
+ * Handles the upload of a dislocation file.
+ *
+ * @param {BunRequest} req - the request object
+ * @param {BunResponse} res - the response object
+ * @return {Promise<void>} - a promise that resolves when the upload is complete
+ */
+export async function postUploadDislocation(req: BunRequest, res: BunResponse) {
     const body = req.body;
     const params = req.params;
 
@@ -135,7 +140,7 @@ export async function postUploadFile(req:BunRequest, res: BunResponse) {
         res.status(400).json({ message: "Missing body" });
         return;
     }
-    if (!params){
+    if (!params) {
         res.status(400).json({ message: "Missing params" });
         return;
     }
@@ -146,6 +151,72 @@ export async function postUploadFile(req:BunRequest, res: BunResponse) {
     }
     const path = Bun.file(`data/${params.filename}.csv`);
     await Bun.write(path, body.toString());
+
+    await loadDislocationFromCSV(`data/${params.filename}.csv`);
+
+    res.status(200).json({ message: "File uploaded" });
+}
+
+/**
+ * Handles the upload stage for a post request.
+ *
+ * @param {BunRequest} req - The request object.
+ * @param {BunResponse} res - The response object.
+ * @return {Promise<void>} - A promise that resolves when the function completes.
+ */
+export async function postUploadStage(req: BunRequest, res: BunResponse) {
+    const body = req.body;
+    const params = req.params;
+
+    if (!body) {
+        res.status(400).json({ message: "Missing body" });
+        return;
+    }
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        return;
+    }
+
+    if (!params.filename) {
+        res.status(400).json({ message: "Missing filename" });
+        return;
+    }
+    const path = Bun.file(`data/${params.filename}.csv`);
+    await Bun.write(path, body.toString());
+
+    await loadStageFromCSV(`data/${params.filename}.csv`);
+
+    res.status(200).json({ message: "File uploaded" });
+}
+
+/**
+ * Uploads a file and processes its contents to load stations.
+ *
+ * @param {BunRequest} req - The request object.
+ * @param {BunResponse} res - The response object.
+ * @return {Promise<void>} A Promise that resolves after the file is uploaded and the stations are loaded.
+ */
+export async function postUploadStation(req: BunRequest, res: BunResponse) {
+    const body = req.body;
+    const params = req.params;
+
+    if (!body) {
+        res.status(400).json({ message: "Missing body" });
+        return;
+    }
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        return;
+    }
+
+    if (!params.filename) {
+        res.status(400).json({ message: "Missing filename" });
+        return;
+    }
+    const path = Bun.file(`data/${params.filename}.csv`);
+    await Bun.write(path, body.toString());
+
+    await loadStationsFromCSV(`data/${params.filename}.csv`);
 
     res.status(200).json({ message: "File uploaded" });
 }

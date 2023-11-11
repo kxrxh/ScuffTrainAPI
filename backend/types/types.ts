@@ -7,27 +7,26 @@ export type Dislocation = {
 };
 
 export type Stage = {
-  START_CODE: number;
-  END_CODE: number;
-  LEN: number
+  start_id: number;
+  end_id: number;
+  length: number
 }
 
 export type Station = {
-  ST_ID: number;
-  LATITUDE: number;
-  LONGITUDE: number
+  id: number;
+  latitude: number;
+  longitude: number
 }
 
 export type Train = {
   id: number | undefined;
   start_id: number;
   end_id: number;
-  wagons: Wagon[];
 }
 
 export type Wagon = {
   id: number | undefined;
-  train_id: number;
+  train_id: number | null;
   operation_date: Date;
   last_station_id: number;
   wagon_destination_id: number;

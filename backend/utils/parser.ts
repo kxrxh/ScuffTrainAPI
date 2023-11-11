@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { parse } from 'csv-parse';
 
 export type Dislocation = {
@@ -29,9 +29,9 @@ export type Station = {
  * @return {Dislocation[]} An array of dislocations parsed from the file.
  */
 export async function parseDislocation(filename: string): Promise<Dislocation[]> {
-  const csvFilePath = path.resolve(__dirname, `data/${filename}`);
+  const csvFilePath = resolve(__dirname, `data/${filename}`);
   const dislocationHeaders = ["WAGNUM", "OPERDATE", "ST_ID_DISL", "ST_ID_DEST", "TRAIN_INDEX"]
-  const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
+  const fileContent = readFileSync(csvFilePath, { encoding: 'utf-8' });
   let temp: Dislocation[] = [];
   const parser = parse(fileContent, {
     delimiter: ',',
@@ -50,9 +50,9 @@ export async function parseDislocation(filename: string): Promise<Dislocation[]>
  * @return {Stage[]} An array of Stage objects representing the parsed data.
  */
 export async function parseStage(filename: string): Promise<Stage[]> {
-  const csvFilePath = path.resolve(__dirname, `data/${filename}`);
+  const csvFilePath = resolve(__dirname, `data/${filename}`);
   const stageHeaders = ["START_CODE", "END_CODE", "LEN"]
-  const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
+  const fileContent = readFileSync(csvFilePath, { encoding: 'utf-8' });
   let temp: Stage[] = [];
   const parser = parse(fileContent, {
     delimiter: ',',
@@ -71,9 +71,9 @@ export async function parseStage(filename: string): Promise<Stage[]> {
  * @return {Station[]} An array of Station objects representing the data in the CSV file.
  */
 export async function parseStations(filename: string): Promise<Station[]> {
-  const csvFilePath = path.resolve(__dirname, `data/${filename}`);
+  const csvFilePath = resolve(__dirname, `data/${filename}`);
   const stationHeaders = ["ST_ID", "LATITUDE", "LONGITUDE"]
-  const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
+  const fileContent = readFileSync(csvFilePath, { encoding: 'utf-8' });
   let temp: Station[] = [];
   const parser = parse(fileContent, {
     delimiter: ',',

@@ -1,7 +1,7 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
 import { getAllStations, getAllTrains, getStation, getTrainFull, getTrainShort } from "../prisma/database";
-import { loadStageFromCSV, loadStationsFromCSV, loadTrainsFromCSV } from "../utils/migrator";
+import { loadStagesFromCSV, loadStationsFromCSV } from "../utils/migrator";
 
 
 /**
@@ -137,13 +137,13 @@ export async function getPathInfoShort(req: BunRequest, res: BunResponse) {
 
 
 /**
- * Handles the upload stage for a post request.
+ * Handles uploading of data.
  *
- * @param {BunRequest} req - The request object.
- * @param {BunResponse} res - The response object.
- * @return {Promise<void>} - A promise that resolves when the function completes.
+ * @param {BunRequest} req - the request object containing the data to be imported
+ * @param {BunResponse} res - the response object used to send the import status
+ * @return {Promise<void>} a promise that resolves once the import and training are complete
  */
-export async function postUploadStage(req: BunRequest, res: BunResponse) {
+export async function postImportTrain(req: BunRequest, res: BunResponse) {
     const body = req.body;
     const params = req.params;
 
@@ -163,19 +163,81 @@ export async function postUploadStage(req: BunRequest, res: BunResponse) {
     const path = Bun.file(`utils/data/${params.filename}.csv`);
     await Bun.write(path, body.toString());
 
-    await loadStageFromCSV(`data/${params.filename}.csv`);
+    await //TODO
 
-    res.status(200).json({ message: "File uploaded" });
+        res.status(200).json({ message: "Trains imported" });
+    console.log("Trains imported");
+
 }
 
+export async function postImportWagon(req: BunRequest, res: BunResponse) {
+    const body = req.body;
+    const params = req.params;
+
+    if (!body) {
+        res.status(400).json({ message: "Missing body" });
+        return;
+    }
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        return;
+    }
+
+    if (!params.filename) {
+        res.status(400).json({ message: "Missing filename" });
+        return;
+    }
+    const path = Bun.file(`utils/data/${params.filename}.csv`);
+    await Bun.write(path, body.toString());
+
+    await // !TODO
+
+        res.status(200).json({ message: "Wagons imported" });
+    console.log("Wagons imported");
+
+}
 /**
- * Uploads a file and processes its contents to load stations.
+ * Handles the POST request to import a stage.
  *
  * @param {BunRequest} req - The request object.
  * @param {BunResponse} res - The response object.
- * @return {Promise<void>} A Promise that resolves after the file is uploaded and the stations are loaded.
+ * @return {Promise<void>} - Returns a Promise that resolves when the function is complete.
  */
-export async function postUploadStation(req: BunRequest, res: BunResponse) {
+export async function postImportStage(req: BunRequest, res: BunResponse) {
+    const body = req.body;
+    const params = req.params;
+
+    if (!body) {
+        res.status(400).json({ message: "Missing body" });
+        return;
+    }
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        return;
+    }
+
+    if (!params.filename) {
+        res.status(400).json({ message: "Missing filename" });
+        return;
+    }
+    const path = Bun.file(`utils/data/${params.filename}.csv`);
+    await Bun.write(path, body.toString());
+
+    await loadStagesFromCSV(`data/${params.filename}.csv`);
+
+    res.status(200).json({ message: "Stages imported" });
+    console.log("Stages imported");
+
+}
+
+/**
+ * Handles the POST request to import a station.
+ *
+ * @param {BunRequest} req - The request object.
+ * @param {BunResponse} res - The response object.
+ * @return {Promise<void>} - A promise that resolves when the function completes.
+ */
+export async function postImportStation(req: BunRequest, res: BunResponse) {
     const body = req.body;
     const params = req.params;
 
@@ -197,38 +259,7 @@ export async function postUploadStation(req: BunRequest, res: BunResponse) {
 
     await loadStationsFromCSV(`data/${params.filename}.csv`);
 
-    res.status(200).json({ message: "File uploaded" });
-}
-
-/**
- * Handles uploading of data.
- *
- * @param {BunRequest} req - the request object containing the data to be imported
- * @param {BunResponse} res - the response object used to send the import status
- * @return {Promise<void>} a promise that resolves once the import and training are complete
- */
-export async function postImportUploadTrain(req: BunRequest, res: BunResponse) {
-    const body = req.body;
-    const params = req.params;
-
-    if (!body) {
-        res.status(400).json({ message: "Missing body" });
-        return;
-    }
-    if (!params) {
-        res.status(400).json({ message: "Missing params" });
-        return;
-    }
-
-    if (!params.filename) {
-        res.status(400).json({ message: "Missing filename" });
-        return;
-    }
-    const path = Bun.file(`utils/data/${params.filename}.csv`);
-    await Bun.write(path, body.toString());
-
-    await loadTrainsFromCSV(`data/${params.filename}.csv`);
-
-    res.status(200).json({ message: "Trains imported" });
+    res.status(200).json({ message: "Stations imported" });
+    console.log("Stations imported");
 
 }

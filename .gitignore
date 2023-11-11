@@ -177,3 +177,4 @@ dist
 pgdata
 InitDatabase
 backend/data/*
+backend/prisma/migrations

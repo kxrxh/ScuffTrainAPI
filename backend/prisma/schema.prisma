@@ -8,15 +8,17 @@ datasource db {
 }
 
 model Stage {
-  id     Int   @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   length Float @default(0)
 
-  start    Station @relation(name: "start_stages", fields: [start_id], references: [id])
+  start    Station @relation(name: "start_stages", fields: [start_id], references: [station_id])
   start_id Int
 
-  end    Station @relation(name: "end_stages", fields: [end_id], references: [id])
+  end    Station @relation(name: "end_stages", fields: [end_id], references: [station_id])
   end_id Int
+
+  @@unique([start_id, end_id])
 }
 
 model Station {
@@ -40,7 +42,7 @@ model Station {
 }
 
 model Train {
-  id           Int     @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   train_number Int     @unique
   is_move      Boolean @default(false)
@@ -58,9 +60,9 @@ model Train {
 model Wagon {
   id Int @id @default(autoincrement())
 
-  wagon_number Int @unique
-  train_id Int?
-  train    Train? @relation(fields: [train_id], references: [train_number])
+  wagon_number Int    @unique
+  train_id     Int?
+  train        Train? @relation(fields: [train_id], references: [train_number])
 
   destination_id Int
   destination    Station @relation(fields: [destination_id], references: [station_id], name: "wagon_destination")

@@ -1,7 +1,8 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
-import { getStationCoordsById, getStationStages, getStations, getTrainById, getTrains, getTrainsByDestination, getTrainsByOrigin, postImportUploadTrain, postUploadDislocation, postUploadStage, postUploadStation } from "./handlers";
+import { getStationCoordsById, getStationStages, getStations, getTrainById, getTrains, getTrainsByDestination, getTrainsByOrigin } from "./handlers";
 import { Router } from "bunrest/src/router/router";
+import { postImportStation, postImportStage, postImportTrain, postImportWagon } from "./handlers";
 
 /**
  * Initializes the API by setting up the routes.
@@ -23,11 +24,13 @@ export function initApi(app: any) {
     routerV1.post("/train/destination/", getTrainsByDestination)
     routerV1.post("/train/id/", getTrainById)
 
-    routerV1.post("/upload/dislocation/:filename", postUploadDislocation)
-    routerV1.post("/upload/stage/:filename", postUploadStage)
-    routerV1.post("/upload/station/:filename", postUploadStation)
-    routerV1.post("/upload/train/:filename", postImportUploadTrain)
+    routerV1.post("/import/wagon/:filename", postImportWagon)
 
+    routerV1.post("/import/train/:filename", postImportTrain)
+
+    routerV1.post("/import/station/:filename", postImportStation)
+
+    routerV1.post("/import/stage/:filename", postImportStage)
 
     app.use('/v1/', routerV1);
 }

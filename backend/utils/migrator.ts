@@ -1,129 +1,80 @@
-import { parseStage, parseDislocation, parseStations } from "./csvParser";
+import { parseStage, parseStations, parseTrains, parseWagons } from "./csvParser";
 import { PrismaClient } from '@prisma/client';
-import { Train, Wagon } from "../types/types";
+import { Stage, Station, Train, Wagon } from "../types/types";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+import { parse } from "csv-parse";
 
 const prisma = new PrismaClient();
 
-/**
- * Loads dislocation data from a CSV file.
- *
- * @param {string} filename - The name of the CSV file.
- * @return {Promise<void>} - A promise that resolves when the data is loaded.
- */
-export async function loadDislocationFromCSV(filename: string) {
-    await prisma.$connect();
-    (await parseDislocation(filename)).map(async (dislocation) => {
-        const _ = await prisma.dislocation.create({
-            data: {
-                wagon_number: 0,
-                operation_date: new Date(dislocation.OPERDATE),
-                station_id_dislocation: dislocation.ST_ID_DISL - 0,
-                station_id_destination: dislocation.ST_ID_DEST - 0,
-                train_index: dislocation.TRAIN_INDEX,
-            },
-        }).then(async () => {
-            await prisma.$disconnect()
-        }).catch(async (e) => {
-            console.error(e);
-            await prisma.$disconnect()
-        });
-    });
-}
-
-/**
- * Loads a stage from a CSV file.
- *
- * @param {string} filename - The name of the CSV file.
- * @return {Promise<void>} - A promise that resolves when the stage is loaded.
- */
-export async function loadStageFromCSV(filename: string) {
+export async function loadStagesFromCSV(filename: string) {
     await prisma.$connect();
     (await parseStage(filename)).map(async (dislocation) => {
         const _ = await prisma.stage.create({
             data: {
-                start_id: dislocation.START_CODE - 0,
-                end_id: dislocation.END_CODE - 0,
-                length: dislocation.LEN - 0,
+                length: dislocation.length,
+                start_id: dislocation.start,
+                end_id: dislocation.end,
             },
-        }).then(async () => {
-            await prisma.$disconnect()
-        }).catch(async (e) => {
-            console.error(e);
-            await prisma.$disconnect()
+        }).finally(async () => { await prisma.$disconnect() }).catch((err) => {
+            console.error(err)
         })
     });
 
 }
 
-/**
- * Loads stations from a CSV file.
- *
- * @param {string} filename - The name of the CSV file.
- * @return {Promise<void>} A promise that resolves when the stations have been loaded.
- */
 export async function loadStationsFromCSV(filename: string) {
     await prisma.$connect();
-    (await parseStations(filename)).map(async (station) => {
+    (await parseStations(filename)).map(async (station: Station) => {
         const _ = await prisma.station.create({
             data: {
-                id: station.ST_ID - 0,
-                latitude: station.LATITUDE - 0,
-                longitude: station.LONGITUDE - 0,
+                station_id: station.station_id,
+                latitude: station.latitude,
+                longitude: station.longitude,
             },
-        }).then(async () => {
-            await prisma.$disconnect()
-        }).catch(async (e) => {
-            console.error(e);
-            await prisma.$disconnect()
+        }).finally(async () => { await prisma.$disconnect() }).catch((err) => {
+            console.error(err)
         })
     });
 }
 
-
-/**
- * Loads trains from a CSV file and returns an array of Train objects.
- *
- * @param {string} filename - The name of the CSV file to load.
- * @return {Promise<Train[]>} An array of Train objects representing the loaded trains.
- */
-export async function loadTrainsFromCSV(filename: string):Promise<Train[]>{
-    let dislocations = await parseDislocation(filename);
-    let trains: Train[] = [];
-    let wagons: Wagon[] = [];
-    
-    for (let i = 0; i < dislocations.length; i++) {
-        const trainIndexes = dislocations[i].TRAIN_INDEX.split('-');
-        if (trainIndexes.length === 3) {
-            const trainCreationStation = parseInt(trainIndexes[0]);
-            const trainId = parseInt(trainIndexes[1]);
-            const trainDestinationStation = parseInt(trainIndexes[2]);
-
-            let wagon: Wagon = {
-                id: dislocations[i].WAGNUM-0,
-                operation_date: dislocations[i].OPERDATE,
-                last_station_id: dislocations[i].ST_ID_DISL-0,
-                wagon_destination_id: dislocations[i].ST_ID_DEST-0,
-                train_id: trainId
-            };
-
-            let existingTrain = trains.find(train => train.id === trainId);
-
-            if (existingTrain) {
-                let trainIndex = trains.findIndex(train => train.id === trainId);
-                trains[trainIndex].wagons.push(wagon);
-            } else {
-                const train: Train = {
-                    id: trainId,
-                    start_id: trainCreationStation,
-                    end_id: trainDestinationStation,
-                    wagons: [wagon] 
-                };
-                trains.push(train);
+export async function loadTrainsFromCSV(filename: string) {
+    await prisma.$connect();
+    (await parseTrains(filename)).map(async (train: Train) => {
+        const _ = await prisma.train.create({
+            data: {
+                is_move: train.is_move, // Assuming is_move always true for the provided data
+                start_id: train.start_id,
+                end_id: train.end_id,
+                train_number: train.train_number,
             }
-            
-            wagons.push(wagon);
-        }
-    }
-
-    return trains;
+        }).finally(async () => { await prisma.$disconnect() }).catch((err) => {
+            console.error(err)
+        })
+    })
 }
+
+
+export async function loadWagonsFromCSV(filename: string) {
+    await prisma.$connect();
+    (await parseWagons(filename)).map(async (wagon: Wagon) => {
+        const _ = await prisma.wagon.create({
+            data: {
+                wagon_number: wagon.wagon_number,
+                train_id: wagon.train_id,
+                destination_id: wagon.destination_id
+            }
+        }).finally(async () => { await prisma.$disconnect() }).catch((err) => {
+            console.error(err)
+        })
+    })
+}
+
+
+// await loadWagonsFromCSV("data/disl_hackaton.csv")
+
+// await loadTrainsFromCSV("data/disl_hackaton.csv")
+
+// await loadStationsFromCSV("data/STATION_COORDS_HACKATON.csv")
+
+// await loadStagesFromCSV("data/PEREGON_HACKATON.csv")

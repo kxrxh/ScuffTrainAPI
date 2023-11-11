@@ -1,6 +1,6 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
-import { getStationCoordsById, getStationStages, getStations, getTrainById, getTrains, getTrainsByDestination, getTrainsByOrigin, postUploadFile } from "./handlers";
+import { getStationCoordsById, getStationStages, getStations, getTrainById, getTrains, getTrainsByDestination, getTrainsByOrigin, postImportUploadTrain, postUploadDislocation, postUploadStage, postUploadStation } from "./handlers";
 import { Router } from "bunrest/src/router/router";
 
 /**
@@ -23,7 +23,10 @@ export function initApi(app: any) {
     routerV1.post("/train/destination/", getTrainsByDestination)
     routerV1.post("/train/id/", getTrainById)
 
-    routerV1.post("/upload/:filename", postUploadFile)
+    routerV1.post("/upload/dislocation/:filename", postUploadDislocation)
+    routerV1.post("/upload/stage/:filename", postUploadStage)
+    routerV1.post("/upload/station/:filename", postUploadStation)
+    routerV1.post("/upload/train/:filename", postImportUploadTrain)
 
 
     app.use('/v1/', routerV1);

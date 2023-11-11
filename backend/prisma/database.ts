@@ -29,6 +29,18 @@ export async function getAllStations(): Promise<StationShortDTO[] | null> {
     return stations
 }
 
+export async function getPathInfoFull(destId: number) {
+    const res = await prisma.stage.findMany({
+        where: {
+            start_id: destId
+        }
+    });
+    if (!res) {
+        return null
+    }
+
+}
+
 // ! Here we need graphs ;(
 // async function getArrivalsForStation(stationId: number): Promise<TrainShortDTO[] | null> {
 //     const trains = 
@@ -296,4 +308,27 @@ export async function getStation(id: number): Promise<StationLongDTO | null> {
         arrivals: arrivalTrains,
         current: currentTrains
     }
+}
+
+/**
+ * Retrieves a slice of the action history timeline up to the specified date.
+ *
+ * @param {Date} upperDate - The upper date limit to retrieve the slice of the timeline.
+ * @return {Promise<Array<ActionHistory> | null>} - A promise that resolves to an array of action history objects if successful, or null if no data is found.
+ */
+export async function sliceTimeLine(border: Date): Promise<Array<ActionHistory> | null> {
+    const data = await prisma.actionHistory.findMany({
+        where: {
+            action_date: {
+                gte: border
+            }
+        },
+        orderBy: {
+            action_date: 'desc'
+        }
+    });
+    if (!data) {
+        return null
+    }
+    return data
 }

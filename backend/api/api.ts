@@ -21,12 +21,12 @@ export function initApi(app: any) {
     routerV1.get("/train/full/:id", getTrainByIdFull); // *Done
 
     routerV1.get("/train/path/full/:id", getPathInfoFull);
-    routerV1.get("/train/path/short/:id", getPathInfoShort);
+    routerV1.get("/train/path/short/:id", getPathInfoShort); 
 
-    routerV1.post("/import/wagon/:filename", postImportWagon)
-    routerV1.post("/import/train/:filename", postImportTrain)
-    routerV1.post("/import/station/:filename", postImportStation)
-    routerV1.post("/import/stage/:filename", postImportStage)
+    routerV1.post("/import/wagon/:filename", postImportWagon); // *Done
+    routerV1.post("/import/train/:filename", postImportTrain); // *Done
+    routerV1.post("/import/station/:filename", postImportStation); // *Done
+    routerV1.post("/import/stage/:filename", postImportStage); // *Done
 
     app.use('/v1/', routerV1);
 }

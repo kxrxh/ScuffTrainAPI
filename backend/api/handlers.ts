@@ -35,6 +35,8 @@ export async function getStationById(req: BunRequest, res: BunResponse) {
     res.status(200).json({ station: station });
 }
 
+
+
 /**
  * Retrieves all available stations.
  * 

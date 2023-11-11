@@ -37,6 +37,7 @@ model Station {
   wagons_destination Wagon[] @relation(name: "wagon_destination")
 
   actions_disl ActionHistory[] @relation(name: "action_history_dislocation")
+  actions_dest ActionHistory[] @relation(name: "action_history_destination")
 
   @@map("StationCoordinates")
 }
@@ -79,6 +80,9 @@ model ActionHistory {
 
   wagon_id Int
   wagon    Wagon @relation(fields: [wagon_id], references: [wagon_number], name: "action_history_wagon")
+
+  destination_id Int
+  destination    Station @relation(fields: [destination_id], references: [station_id], name: "action_history_destination")
 
   dislocation_id Int
   dislocation    Station @relation(fields: [dislocation_id], references: [station_id], name: "action_history_dislocation")

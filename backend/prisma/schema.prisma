@@ -17,6 +17,7 @@ model Stage {
 
   end    Station @relation(name: "end_stages", fields: [end_id], references: [station_id])
   end_id Int
+
   @@unique([start_id, end_id])
 }
 

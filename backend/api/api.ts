@@ -1,8 +1,7 @@
+import { Router } from "bunrest/src/router/router";
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
-import { getStationCoordsById, getStationStages, getStations, getTrainById, getTrains, getTrainsByDestination, getTrainsByOrigin } from "./handlers";
-import { Router } from "bunrest/src/router/router";
-import { postImportStation, postImportStage, postImportTrain, postImportWagon } from "./handlers";
+import { getPathInfoFull, getPathInfoShort, getStationById, getStations, getTrainByIdFull, getTrainByIdShort, getTrains, postImportStage, postImportStation, postImportTrain, postImportWagon } from "./handlers";
 
 /**
  * Initializes the API by setting up the routes.
@@ -14,22 +13,19 @@ export function initApi(app: any) {
 
     routerV1.get("/ping", (_req: BunRequest, res: BunResponse) => res.status(200).json({ message: "pong", time: new Date().toISOString() }));
 
-    routerV1.get("/station/all", getStations)
-    routerV1.get("/train/all", getTrains)
+    routerV1.get("/station/:id", getStationById); // !Done (3 TODOs)
+    routerV1.get("/station/all", getStations); // !Done (2 TODOs)
 
-    routerV1.post("/station/coords", getStationCoordsById)
-    routerV1.post("/station/stages", getStationStages)
+    routerV1.get("/train/all", getTrains); // *Done
+    routerV1.get("/train/short/:id", getTrainByIdShort); // *Done
+    routerV1.get("/train/full/:id", getTrainByIdFull); // *Done
 
-    routerV1.post("/train/origin/", getTrainsByOrigin)
-    routerV1.post("/train/destination/", getTrainsByDestination)
-    routerV1.post("/train/id/", getTrainById)
+    routerV1.get("/train/path/full/:id", getPathInfoFull);
+    routerV1.get("/train/path/short/:id", getPathInfoShort);
 
     routerV1.post("/import/wagon/:filename", postImportWagon)
-
     routerV1.post("/import/train/:filename", postImportTrain)
-
     routerV1.post("/import/station/:filename", postImportStation)
-
     routerV1.post("/import/stage/:filename", postImportStage)
 
     app.use('/v1/', routerV1);

@@ -1,7 +1,7 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
 import { getAllStations, getStagesByOrigin, getStationCoords } from "../prisma/database";
-import { loadDislocationFromCSV, loadStageFromCSV, loadStationsFromCSV } from "../utils/migrator";
+import { loadDislocationFromCSV, loadStageFromCSV, loadStationsFromCSV, loadTrainsFromCSV } from "../utils/migrator";
 
 
 /**
@@ -219,4 +219,30 @@ export async function postUploadStation(req: BunRequest, res: BunResponse) {
     await loadStationsFromCSV(`data/${params.filename}.csv`);
 
     res.status(200).json({ message: "File uploaded" });
+}
+
+export async function postImportUploadTrain(req: BunRequest, res: BunResponse) {
+    const body = req.body;
+    const params = req.params;
+
+    if (!body) {
+        res.status(400).json({ message: "Missing body" });
+        return;
+    }
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        return;
+    }
+
+    if (!params.filename) {
+        res.status(400).json({ message: "Missing filename" });
+        return;
+    }
+    const path = Bun.file(`data/${params.filename}.csv`);
+    await Bun.write(path, body.toString());
+
+    await loadTrainsFromCSV(`data/${params.filename}.csv`);
+
+    res.status(200).json({ message: "Trains imported" });
+
 }

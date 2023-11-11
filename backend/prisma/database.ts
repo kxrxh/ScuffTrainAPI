@@ -1,5 +1,6 @@
 import { ActionHistory, PrismaClient } from '@prisma/client';
 import { StationLongDTO, StationShortDTO, TrainFullDTO, TrainShortDTO, WagonShortDTO } from './dto';
+import { Dijkstra, findIntersection } from '../utils/utils';
 
 const prisma = new PrismaClient();
 
@@ -333,4 +334,49 @@ export async function sliceTimeLine(border: Date): Promise<Array<ActionHistory> 
         return null;
     }
     return data;
+}
+
+/**
+ * Retrieves the full path for a given train ID.
+ *
+ * @param {number} id - The ID of the train.
+ * @return {Promise<string|null>} The full path for the train, or null if the train does not exist or there is no path available.
+ */
+export async function getFullPath(id: number) {
+    const train = await prisma.train.findUnique({
+        where: {
+            train_number: id
+        }
+    });
+    if (!train) {
+        return null
+    }
+
+    const res = Dijkstra(train.start_id + "", train.end_id + "");
+    if (!res) {
+        return null
+    }
+
+    const trains = await prisma.train.findMany({})
+    if (!trains) {
+        return null
+    }
+
+    let dtoTrains: TrainShortDTO[] = [];
+    for (const trainOther of trains) {
+        const sres = Dijkstra(trainOther.start_id + "", trainOther.end_id + "");
+        if (!sres) {
+            return null
+        }
+        let interRes = findIntersection(res, sres);
+        if (interRes.length > 0) {
+            const dto = await getTrainShort(trainOther.train_number);
+            if (!dto) {
+                console.log("Train not found with id", trainOther.train_number);
+                continue
+            }
+            dtoTrains.push(dto);
+        }
+    }
+    return { "path_data": res, "trains_on_path": dtoTrains }
 }

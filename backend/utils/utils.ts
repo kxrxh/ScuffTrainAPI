@@ -1,7 +1,7 @@
 import { COORDS } from "./data/constants/COORDS";
 import { GRAPH } from "./data/constants/GRAPH";
 
-function Dijkstra(startPoint: string, endPoint: string) {
+export function Dijkstra(startPoint: string, endPoint: string) {
     if (!(startPoint in GRAPH) || !(endPoint in GRAPH)) {
         console.log("Invalid start or end point");
         return [];
@@ -68,4 +68,8 @@ class PriorityQueue<T> {
     private sortQueue(): void {
         this.queue.sort((a, b) => a.priority - b.priority);
     }
+}
+
+export function findIntersection(arr1: any[], arr2: any[]) {
+    return arr1.filter(value => arr2.includes(value));
 }

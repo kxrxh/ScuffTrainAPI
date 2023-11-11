@@ -1,6 +1,6 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
-import { getAllStations, getAllTrains, getStation, getTrainFull, getTrainShort } from "../prisma/database";
+import { getAllStations, getAllTrains, getFullPath, getStation, getTrainFull, getTrainShort } from "../prisma/database";
 import { loadStagesFromCSV, loadStationsFromCSV, loadTrainsFromCSV, loadWagonsFromCSV } from "../utils/migrator";
 
 
@@ -25,7 +25,7 @@ export async function getStationById(req: BunRequest, res: BunResponse) {
         return;
     }
 
-    
+
     const station = await getStation(params.id - 0);
     if (!station) {
         res.status(404).json({ message: "Station not found" });
@@ -86,7 +86,7 @@ export async function getTrainByIdShort(req: BunRequest, res: BunResponse) {
         console.error("Missing id");
         return;
     }
-    
+
     const train = await getTrainShort(params.id - 0);
     if (!train) {
         res.status(404).json({ message: "Train not found" });
@@ -116,7 +116,7 @@ export async function getTrainByIdFull(req: BunRequest, res: BunResponse) {
         return;
     }
 
-    
+
 
     const train = await getTrainFull(params.id - 0);
     if (!train) {
@@ -129,7 +129,27 @@ export async function getTrainByIdFull(req: BunRequest, res: BunResponse) {
 }
 
 export async function getPathInfoFull(req: BunRequest, res: BunResponse) {
-    throw new Error("Function not implemented.");
+    const params = req.params;
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
+        return;
+    }
+
+    if (!params.id) {
+        res.status(400).json({ message: "Missing id" });
+        console.error("Missing id");
+        return;
+    }
+
+    const answer = await getFullPath(params.id - 0);
+    if (!answer) {
+        res.status(404).json({ message: "Path not found" });
+        console.error("Path not found");
+        return;
+    }
+
+    res.status(200).json({ path: answer });
 }
 
 export async function getPathInfoShort(req: BunRequest, res: BunResponse) {

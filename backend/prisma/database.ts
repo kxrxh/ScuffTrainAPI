@@ -147,7 +147,7 @@ export async function getAllTrains(): Promise<TrainShortDTO[] | null> {
 export async function getTrainShort(id: number): Promise<TrainShortDTO | null> {
     const train = await prisma.train.findUnique({
         where: {
-            id: id
+            train_number: id
         }
     });
     if (!train) {
@@ -181,7 +181,7 @@ export async function getTrainShort(id: number): Promise<TrainShortDTO | null> {
 export async function getTrainFull(id: number): Promise<TrainFullDTO | null> {
     const train = await prisma.train.findUnique({
         where: {
-            id: id
+            train_number: id
         }
     });
     if (!train) {
@@ -288,7 +288,7 @@ async function isTrainMoving(trainId: number): Promise<boolean> {
 export async function getStation(id: number): Promise<StationLongDTO | null> {
     const stationInfo = await prisma.station.findUnique({
         where: {
-            id: id
+            station_id: id
         }
     });
     if (!stationInfo) {

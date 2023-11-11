@@ -4,6 +4,12 @@ import { parse } from 'csv-parse';
 import { Stage, Station, Train, Wagon } from "../types/types";
 
 
+/**
+ * Parses a stage file and returns an array of Stage objects.
+ *
+ * @param {string} filename - The name of the file to parse.
+ * @return {Promise<Stage[]>} A promise that resolves to an array of Stage objects.
+ */
 export async function parseStage(filename: string): Promise<Stage[]> {
   const stageHeaders = ["START_CODE", "END_CODE", "LEN"]
   let temp: Stage[] = [];
@@ -25,6 +31,12 @@ export async function parseStage(filename: string): Promise<Stage[]> {
 }
 
 
+/**
+ * Parses a file containing station data and returns an array of Station objects.
+ *
+ * @param {string} filename - The name of the file to parse.
+ * @return {Promise<Station[]>} A Promise that resolves to an array of Station objects.
+ */
 export async function parseStations(filename: string): Promise<Station[]> {
   const stationHeaders = ["ST_ID", "LATITUDE", "LONGITUDE"]
 
@@ -46,6 +58,12 @@ export async function parseStations(filename: string): Promise<Station[]> {
 }
 
 
+/**
+ * Parses a CSV file containing train data and returns an array of Train objects.
+ *
+ * @param {string} filename - The name of the CSV file to parse.
+ * @return {Promise<Train[]>} The parsed array of Train objects.
+ */
 export async function parseTrains(filename: string): Promise<Train[]> {
   const trains: Train[] = [];
 
@@ -84,6 +102,12 @@ export async function parseTrains(filename: string): Promise<Train[]> {
 }
 
 
+/**
+ * Parses a CSV file of wagons and returns an array of Wagon objects.
+ *
+ * @param {string} filename - The name of the CSV file to parse.
+ * @return {Promise<Wagon[]>} - A Promise that resolves to an array of Wagon objects.
+ */
 export async function parseWagons(filename: string): Promise<Wagon[]> {
   const csvFilePath = resolve(import.meta.dir, filename);
   const fileContent = readFileSync(csvFilePath, { encoding: 'utf-8' });

@@ -1,12 +1,15 @@
 import { parseStage, parseStations, parseTrains, parseWagons } from "./csvParser";
 import { PrismaClient } from '@prisma/client';
-import { Stage, Station, Train, Wagon } from "../types/types";
-import { readFileSync } from "fs";
-import { resolve } from "path";
-import { parse } from "csv-parse";
+import { Station, Train, Wagon } from "../types/types";
 
 const prisma = new PrismaClient();
 
+/**
+ * Loads stages from a CSV file.
+ *
+ * @param {string} filename - The name of the CSV file.
+ * @return {Promise<void>} A promise that resolves when the stages are loaded.
+ */
 export async function loadStagesFromCSV(filename: string) {
     await prisma.$connect();
     (await parseStage(filename)).map(async (dislocation) => {
@@ -23,6 +26,12 @@ export async function loadStagesFromCSV(filename: string) {
 
 }
 
+/**
+ * Loads stations from a CSV file.
+ *
+ * @param {string} filename - The name of the CSV file to load stations from.
+ * @return {Promise<void>} - A promise that resolves when the stations are loaded.
+ */
 export async function loadStationsFromCSV(filename: string) {
     await prisma.$connect();
     (await parseStations(filename)).map(async (station: Station) => {
@@ -38,6 +47,12 @@ export async function loadStationsFromCSV(filename: string) {
     });
 }
 
+/**
+ * Loads trains from a CSV file.
+ *
+ * @param {string} filename - The name of the CSV file to load trains from.
+ * @return {Promise<void>} A promise that resolves when the trains have been loaded.
+ */
 export async function loadTrainsFromCSV(filename: string) {
     await prisma.$connect();
     (await parseTrains(filename)).map(async (train: Train) => {
@@ -55,6 +70,12 @@ export async function loadTrainsFromCSV(filename: string) {
 }
 
 
+/**
+ * Loads wagons from a CSV file.
+ *
+ * @param {string} filename - The name of the CSV file.
+ * @return {Promise<void>} A promise that resolves when the wagons are loaded.
+ */
 export async function loadWagonsFromCSV(filename: string) {
     await prisma.$connect();
     (await parseWagons(filename)).map(async (wagon: Wagon) => {
@@ -70,11 +91,3 @@ export async function loadWagonsFromCSV(filename: string) {
     })
 }
 
-
-// await loadWagonsFromCSV("data/disl_hackaton.csv")
-
-// await loadTrainsFromCSV("data/disl_hackaton.csv")
-
-// await loadStationsFromCSV("data/STATION_COORDS_HACKATON.csv")
-
-// await loadStagesFromCSV("data/PEREGON_HACKATON.csv")

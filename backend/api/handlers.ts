@@ -15,19 +15,18 @@ export async function getStationById(req: BunRequest, res: BunResponse) {
 
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
 
     if (!params.id) {
         res.status(400).json({ message: "Missing id" });
+        console.error("Missing id");
         return;
     }
 
-    if (typeof (params.id) != "number") {
-        res.status(400).json({ message: "Invalid id" });
-        return;
-    }
-    const station = await getStation(params.id);
+    
+    const station = await getStation(params.id - 0);
     if (!station) {
         res.status(404).json({ message: "Station not found" });
         return;
@@ -62,6 +61,7 @@ export async function getTrains(req: BunRequest, res: BunResponse) {
     const trains = await getAllTrains();
     if (!trains) {
         res.status(500).json({ message: "Internal server error" });
+        console.error("No trains found when retrieving trains");
         return;
     }
     res.status(200).json({ trains: trains });
@@ -78,17 +78,16 @@ export async function getTrainByIdShort(req: BunRequest, res: BunResponse) {
     const params = req.params;
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
     if (!params.id) {
         res.status(400).json({ message: "Missing id" });
+        console.error("Missing id");
         return;
     }
-    if (typeof (params.id) != "number") {
-        res.status(400).json({ message: "Invalid id" });
-        return;
-    }
-    const train = await getTrainShort(params.id);
+    
+    const train = await getTrainShort(params.id - 0);
     if (!train) {
         res.status(404).json({ message: "Train not found" });
         return;
@@ -107,22 +106,22 @@ export async function getTrainByIdFull(req: BunRequest, res: BunResponse) {
     const params = req.params;
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
 
     if (!params.id) {
         res.status(400).json({ message: "Missing id" });
+        console.error("Missing id");
         return;
     }
 
-    if (typeof (params.id) != "number") {
-        res.status(400).json({ message: "Invalid id" });
-        return;
-    }
+    
 
-    const train = await getTrainFull(params.id);
+    const train = await getTrainFull(params.id - 0);
     if (!train) {
         res.status(404).json({ message: "Train not found" });
+        console.error("Train not found");
         return;
     }
 
@@ -151,15 +150,18 @@ export async function postImportTrain(req: BunRequest, res: BunResponse) {
 
     if (!body) {
         res.status(400).json({ message: "Missing body" });
+        console.error("Missing body");
         return;
     }
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
 
     if (!params.filename) {
         res.status(400).json({ message: "Missing filename" });
+        console.error("Missing filename");
         return;
     }
     const path = Bun.file(`utils/data/${params.filename}.csv`);
@@ -167,7 +169,7 @@ export async function postImportTrain(req: BunRequest, res: BunResponse) {
 
     await loadTrainsFromCSV(`data/${params.filename}.csv`);
 
-        res.status(200).json({ message: "Trains imported" });
+    res.status(200).json({ message: "Trains imported" });
     console.log("Trains imported");
 
 }
@@ -178,15 +180,18 @@ export async function postImportWagon(req: BunRequest, res: BunResponse) {
 
     if (!body) {
         res.status(400).json({ message: "Missing body" });
+        console.error("Missing body");
         return;
     }
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
 
     if (!params.filename) {
         res.status(400).json({ message: "Missing filename" });
+        console.error("Missing filename");
         return;
     }
     const path = Bun.file(`utils/data/${params.filename}.csv`);
@@ -194,7 +199,7 @@ export async function postImportWagon(req: BunRequest, res: BunResponse) {
 
     await loadWagonsFromCSV(`data/${params.filename}.csv`);
 
-        res.status(200).json({ message: "Wagons imported" });
+    res.status(200).json({ message: "Wagons imported" });
     console.log("Wagons imported");
 
 }
@@ -211,15 +216,18 @@ export async function postImportStage(req: BunRequest, res: BunResponse) {
 
     if (!body) {
         res.status(400).json({ message: "Missing body" });
+        console.error("Missing body");
         return;
     }
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
 
     if (!params.filename) {
         res.status(400).json({ message: "Missing filename" });
+        console.error("Missing filename");
         return;
     }
     const path = Bun.file(`utils/data/${params.filename}.csv`);
@@ -245,15 +253,18 @@ export async function postImportStation(req: BunRequest, res: BunResponse) {
 
     if (!body) {
         res.status(400).json({ message: "Missing body" });
+        console.error("Missing body");
         return;
     }
     if (!params) {
         res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
         return;
     }
 
     if (!params.filename) {
         res.status(400).json({ message: "Missing filename" });
+        console.error("Missing filename");
         return;
     }
     const path = Bun.file(`utils/data/${params.filename}.csv`);

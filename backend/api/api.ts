@@ -13,7 +13,7 @@ export function initApi(app: any) {
 
     routerV1.get("/ping", (_req: BunRequest, res: BunResponse) => res.status(200).json({ message: "pong", time: new Date().toISOString() }));
 
-    routerV1.get("/station/:id", getStationById); // !Done (3 TODOs)
+    routerV1.get("/station/id/:id", getStationById); // !Done (3 TODOs)
     routerV1.get("/station/all", getStations); // !Done (2 TODOs)
 
     routerV1.get("/train/all", getTrains); // *Done
@@ -23,10 +23,11 @@ export function initApi(app: any) {
     routerV1.get("/train/path/full/:id", getPathInfoFull);
     routerV1.get("/train/path/short/:id", getPathInfoShort); 
 
-    routerV1.post("/import/wagon/:filename", postImportWagon); // *Done
-    routerV1.post("/import/train/:filename", postImportTrain); // *Done
+    // Station -> Stage -> Train-> Wagon 
     routerV1.post("/import/station/:filename", postImportStation); // *Done
     routerV1.post("/import/stage/:filename", postImportStage); // *Done
+    routerV1.post("/import/wagon/:filename", postImportWagon); // *Done
+    routerV1.post("/import/train/:filename", postImportTrain); // *Done
 
     app.use('/v1/', routerV1);
 }

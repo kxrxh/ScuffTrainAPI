@@ -1,0 +1,24 @@
+{
+  "name": "scufftrainapi",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build",
+    "dev": "bun dev --host 0.0.0.0",
+    "start": "bun run index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.5.2",
+    "buncors": "^0.2.4",
+    "bunrest": "^1.3.7",
+    "csv-parse": "^5.5.2",
+    "fs": "^0.0.1-security",
+    "prisma": "^5.5.2"
+  }
+}

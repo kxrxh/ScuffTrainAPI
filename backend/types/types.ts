@@ -18,7 +18,7 @@ export type Station = {
   LONGITUDE: number
 }
 
-export type Train ={
+export type Train = {
   id: number | undefined;
   start_id: number;
   end_id: number;

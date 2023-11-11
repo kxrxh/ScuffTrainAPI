@@ -16,7 +16,6 @@ model Stage {
 
   end      Station @relation(name: "end_stages", fields: [end_id], references: [id])
   end_id   Int
-
 }
 
 model Station {

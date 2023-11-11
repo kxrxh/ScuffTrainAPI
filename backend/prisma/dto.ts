@@ -19,10 +19,7 @@ export type GetAllStationsDTO = {
 
 export type StationShortDTO = {
     id: number;
-    coords: {
-        lat: number;
-        long: number
-    }
+    coords: number[];
     departure: TrainShortDTO,
     current_num: number
 }

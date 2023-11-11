@@ -1,40 +1,11 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
-import { getAllStations, getAllTrains, getFullPath, getStation, getTrainFull, getTrainShort } from "../prisma/database";
+import { getAllStations, getAllTrainsByTime, getFullPath, getLastWagonStationAndTime, getStation, getTrainFull, getTrainShort, isTrainMoving, truncateTableCascade } from "../prisma/database";
 import { loadStagesFromCSV, loadStationsFromCSV, loadTrainsFromCSV, loadWagonsFromCSV } from "../utils/migrator";
+import { TrainShortDTO } from "../prisma/dto";
+import { ActionHistory, PrismaClient } from "@prisma/client";
 
-
-/**
- * Retrieves the coordinates of a station by its ID.
- *
- * @param {BunRequest} req - the request object
- * @param {BunResponse} res - the response object
- */
-export async function getStationById(req: BunRequest, res: BunResponse) {
-    const params = req.params;
-
-    if (!params) {
-        res.status(400).json({ message: "Missing params" });
-        console.error("Missing params");
-        return;
-    }
-
-    if (!params.id) {
-        res.status(400).json({ message: "Missing id" });
-        console.error("Missing id");
-        return;
-    }
-
-
-    const station = await getStation(params.id - 0);
-    if (!station) {
-        res.status(404).json({ message: "Station not found" });
-        return;
-    }
-    res.status(200).json({ station: station });
-}
-
-
+const prisma = new PrismaClient();
 
 /**
  * Retrieves all available stations.
@@ -51,6 +22,39 @@ export async function getStations(req: BunRequest, res: BunResponse) {
     res.status(200).json({ stations: await getAllStations() });
 }
 
+
+/**
+ * Retrieves all trains from the database.
+ *
+ * @return {Promise<Train[]>} An array of Train objects representing all trains in the database.
+ */
+export async function getAllTrains(): Promise<TrainShortDTO[] | null> {
+    const trains = await prisma.train.findMany();
+    if (!trains) {
+        return null
+    }
+    let trainsDTO: TrainShortDTO[] = [];
+
+    for (const train of trains) {
+        const isMoving = await isTrainMoving(train.train_number);
+        let time = -1;
+        if (isMoving) {
+            const lastTime: ActionHistory | null = await getLastWagonStationAndTime(train.train_number);
+            if (lastTime) {
+                time = new Date().getTime() - lastTime.action_date.getTime();
+            }
+        }
+        trainsDTO.push({
+            id: train.train_number,
+            start_id: train.start_id,
+            dest_id: train.end_id,
+            is_move: isMoving,
+            move_time: time
+        })
+    }
+    return trainsDTO
+}
+
 /**
  * Retrieves all available trains.
  * 
@@ -58,6 +62,22 @@ export async function getStations(req: BunRequest, res: BunResponse) {
  * @param {BunResponse} res - The response object.
 */
 export async function getTrains(req: BunRequest, res: BunResponse) {
+    const trains = await getAllTrains();
+    if (!trains) {
+        res.status(500).json({ message: "Internal server error" });
+        console.error("No trains found when retrieving trains");
+        return;
+    }
+    res.status(200).json({ trains: trains });
+}
+
+/**
+ * Retrieves all available trains.
+ * 
+ * @param {BunRequest} req - The request object.
+ * @param {BunResponse} res - The response object.
+*/
+export async function getTrainsByTime(req: BunRequest, res: BunResponse) {
     const params = req.params;
     if (!params) {
         res.status(400).json({ message: "Missing params" });
@@ -70,7 +90,7 @@ export async function getTrains(req: BunRequest, res: BunResponse) {
         return;
 
     }
-    const trains = await getAllTrains(params.time - 0);
+    const trains = await getAllTrainsByTime(params.time - 0);
     if (!trains) {
         res.status(500).json({ message: "Internal server error" });
         console.error("No trains found when retrieving trains");
@@ -111,6 +131,33 @@ export async function getTrainByIdShort(req: BunRequest, res: BunResponse) {
         return;
     }
     res.status(200).json({ train: train });
+}
+
+/**
+ * Retrieves the coordinates of a station by its ID.
+ *
+ * @param {BunRequest} req - the request object
+ * @param {BunResponse} res - the response object
+ */
+export async function getStationById(req: BunRequest, res: BunResponse) {
+    const params = req.params;
+
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
+        return;
+    }
+
+    if (!params.id) {
+        res.status(400).json({ message: "Missing id" });
+        console.error("Missing id");
+        return;
+    }
+
+
+    const station = await getStation(params.id - 0);
+
+    res.status(200).json({ station: station });
 }
 
 /**
@@ -174,11 +221,6 @@ export async function getPathInfoFull(req: BunRequest, res: BunResponse) {
 
     res.status(200).json({ path: answer });
 }
-
-export async function getPathInfoShort(req: BunRequest, res: BunResponse) {
-    throw new Error("Function not implemented."); // !TODO 
-}
-
 
 /**
  * Handles uploading of data.
@@ -318,4 +360,39 @@ export async function postImportStation(req: BunRequest, res: BunResponse) {
     res.status(200).json({ message: "Stations imported" });
     console.log("Stations imported");
 
+}
+export async function deleteTableDB(req: BunRequest, res: BunResponse) {
+    const params = req.params;
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
+        return;
+    }
+    console.log("Deleting table: " + params.table);
+    await truncateTableCascade(params.table);
+    res.status(200).json({ message: "Table deleted" });
+    console.log("Table deleted");
+
+}
+
+export async function getStateOfMovingTrain(req: BunRequest, res: BunResponse) {
+    const params = req.params;
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
+        return;
+    }
+    let status = await isTrainMoving(params.id);
+    res.status(200).json({ message: `Train is ${status}` });
+}
+
+export async function getWagonStationTime(req: BunRequest, res: BunResponse) {
+    const params = req.params;
+    if (!params) {
+        res.status(400).json({ message: "Missing params" });
+        console.error("Missing params");
+        return;
+    }
+    let wagon = await getLastWagonStationAndTime(params.id);
+    res.status(200).json({ wagon: wagon });
 }

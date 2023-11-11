@@ -7,42 +7,33 @@ import { COORDS } from '../utils/data/constants/COORDS';
 const prisma = new PrismaClient();
 
 
+
+
 /**
  * Retrieves all stations.
  *
  * @return {Promise<Station[]>} An array of stations.
  */
-export async function getAllStations(): Promise<any> {
-    const res = Object.keys(COORDS).map(i => {
+export async function getAllStations(): Promise<StationShortDTO[] | null> {
+    const stations = await prisma.station.findMany();
+    const res = stations.map((station) => {
         return {
-            id: i,
-            coords: {
-                lat: COORDS[i].lat,
-                long: COORDS[i].long
-            },
-            departure: {},
-            current_num: 0
-        }
+            id: station.id,
+            coords: [station.latitude, station.longitude],
+            departure: {} as TrainShortDTO,
+            current_num: 0,
+        };
     });
+
     return res;
-    // if (!res) {
-    //     return null
-    // }
-    // let stations: StationShortDTO[] = [];
-    // for (const station of res) {
-    //     stations.push({
-    //         id: station.id,
-    //         coords: {
-    //             lat: station.latitude,
-    //             long: station.longitude
-    //         },
-    //         departure: {} as TrainShortDTO, // TODO!
-    //         current_num: 0 // TODO!
-    //     });
-    // }
-    // return stations
 }
 
+/**
+ * Retrieves the complete information about a path identified by the destination ID.
+ *
+ * @param {number} destId - The ID of the destination.
+ * @return {Promise<Stage[]> | null} - The stages that make up the path, or null if no path is found.
+ */
 export async function getPathInfoFull(destId: number) {
     const res = await prisma.stage.findMany({
         where: {
@@ -55,62 +46,40 @@ export async function getPathInfoFull(destId: number) {
 
 }
 
-// ! Here we need graphs ;(
-// async function getArrivalsForStation(stationId: number): Promise<TrainShortDTO[] | null> {
-//     const trains = 
-//     if (!trains) {
-//         return null
-//     }
-//     let trainsDTO: TrainShortDTO[] = [];
-//     for (const row of trains) {
-//         const train = await getTrainShort(row.train_id);
-//         if (train) {
-//             trainsDTO.push(train);
-//         }
-// }
-
-
-
 /**
  * Retrieves all trains from the database.
  *
  * @return {Promise<Train[]>} An array of Train objects representing all trains in the database.
  */
 // export async function getAllTrains(): Promise<TrainShortDTO[] | null> {
-export async function getAllTrains(time: number): Promise<any> {
-    return Object.keys(trainsdataNStop).map((key: string) => {
+export async function getAllTrainsByTime(time: number): Promise<any> {
+    const trainData = await prisma.train.findMany({
+        include: {
+            start: true,
+            end: true,
+            wagons: {
+                include: {
+                    destination: true,
+                },
+            },
+            actions: {
+                include: {
+                    destination: true,
+                    dislocation: true,
+                },
+            },
+        },
+    });
+
+    return Object.keys(trainData).map((key: string) => {
         return {
             id: (key),
             start_id: key.split("-")[0] as any - 0,
             dest_id: key.split("-")[2] as any - 0,
-            is_move: trainsdataNStop[key].disl !== trainsdataNStop[key].nextStop.disl,
-            move_time: (time - trainsdataNStop[key].operdate)/1000/60
+            is_move: isTrainMoving(key as unknown as number),
+            move_time: (time - (trainsdataNStop as any)[key].operdate) / 60000
         }
     })
-    // const trains = await prisma.train.findMany();
-    // if (!trains) {
-    //     return null
-    // }
-    // let trainsDTO: TrainShortDTO[] = [];
-
-    // for (const train of trains) {
-    //     const isMoving = await isTrainMoving(train.train_number);
-    //     let time = -1;
-    //     if (isMoving) {
-    //         const lastTime: ActionHistory | null = await getLastWagonStationAndTime(train.train_number);
-    //         if (lastTime) {
-    //             time = new Date().getTime() - lastTime.action_date.getTime();
-    //         }
-    //     }
-    //     trainsDTO.push({
-    //         id: train.train_number,
-    //         start_id: train.start_id,
-    //         dest_id: train.end_id,
-    //         is_move: isMoving,
-    //         move_time: time
-    //     })
-    // }
-    // return trainsDTO
 }
 
 /**
@@ -121,14 +90,17 @@ export async function getAllTrains(time: number): Promise<any> {
  */
 export async function getTrainShort(id: string, time: number): Promise<any> {
 
+    if (!trainsdataNStop[id]) {
+        return null
+    }
     const stationFrom = await prisma.station.findUnique({
         where: {
-            station_id: trainsdataNStop[id].disl as any - 0
+            station_id: trainsdataNStop[id].disl - 0
         }
     })
     const stationTo = await prisma.station.findUnique({
         where: {
-            station_id: trainsdataNStop[id].nextStop.disl as any - 0
+            station_id: trainsdataNStop[id].nextStop.disl - 0
         }
     })
     const coords = getCurrentCoords(
@@ -148,36 +120,10 @@ export async function getTrainShort(id: string, time: number): Promise<any> {
         id: id,
         start_id: id.split("-")[0] as any - 0,
         dest_id: id.split("-")[2] as any - 0,
-        is_move: trainsdataNStop[id].disl !== trainsdataNStop[id].nextStop.disl,
-        move_time: (time - trainsdataNStop[id].operdate)/1000/60,
+        is_move: isTrainMoving(id as unknown as number),
+        move_time: (time - trainsdataNStop[id].operdate) / 1000 / 60,
         coords: coords
     }
-    // export async function getTrainShort(id: number): Promise<TrainShortDTO | null> {
-    // const train = await prisma.train.findUnique({
-    //     where: {
-    //         train_number: id
-    //     }
-    // });
-    // if (!train) {
-    //     return null
-    // }
-    // // Parsing the time of last train action and determining if the train is moving
-    // // -1 if the train is not moving or error
-    // const isMoving = await isTrainMoving(train.train_number);
-    // let time = -1;
-    // if (isMoving) {
-    //     const lastTime: ActionHistory | null = await getLastWagonStationAndTime(train.train_number);
-    //     if (lastTime) {
-    //         time = new Date().getTime() - lastTime.action_date.getTime();
-    //     }
-    // }
-    // return {
-    //     id: train.train_number,
-    //     start_id: train.start_id,
-    //     dest_id: train.end_id,
-    //     is_move: isMoving,
-    //     move_time: time,
-    // }
 }
 
 /**
@@ -187,66 +133,28 @@ export async function getTrainShort(id: string, time: number): Promise<any> {
  * @return {Promise<TrainFullDTO | null>} A promise that resolves to the full information of the train, or null if the train does not exist.
  */
 export async function getTrainFull(id: string, time: number): Promise<any> {
-    // export async function getTrainFull(id: number): Promise<TrainFullDTO | null> {
-    // const train = await prisma.train.findUnique({
-    //     where: {
-    //         train_number: id
-    //     }
-    // });
-    // if (!train) {
-    //     return null
-    // }
-    // let wagons = await prisma.wagon.findMany({
-    //     where: {
-    //         train_id: train.train_number
-    //     }
-    // })
-    // let wagonsDTO: WagonShortDTO[] = [];
-    // if (wagons) {
-    //     for (const wagon of wagons) {
-    //         const wagonInfo: ActionHistory | null = await getLastWagonStationAndTime(wagon.wagon_number);
-    //         if (!wagonInfo) {
-    //             console.warn('Could not find wagon info for wagon', wagon.wagon_number);
-    //             continue;
-    //         }
-    //         wagonsDTO.push({
-    //             id: wagon.wagon_number,
-    //             start_id: wagonInfo.dislocation_id,
-    //             dest_id: wagon.destination_id,
-    //             operation_date: wagonInfo.action_date
-    //         })
-    //     }
-    // }
-    // return {
-    //     id: train.train_number,
-    //     start_id: train.start_id,
-    //     dest_id: train.end_id,
-    //     is_move: await isTrainMoving(train.train_number),
-    //     move_time: null,
-    //     wagons: wagonsDTO,
-    //     coords: {
-    //         lat: 0, // TODO?
-    //         long: 0 // TODO?
-    //     }
-    // }
+
+    if (!trainsdataNStop[id]) {
+        return null
+    }
     const stationFrom = await prisma.station.findUnique({
         where: {
-            station_id: trainsdataNStop[id].disl as any - 0
+            station_id: trainsdataNStop[id].disl as number - 0
         }
     })
     const stationTo = await prisma.station.findUnique({
         where: {
-            station_id: trainsdataNStop[id].nextStop.disl as any - 0
+            station_id: trainsdataNStop[id].nextStop.disl as number - 0
         }
     })
     const coords = getCurrentCoords(
         {
-            lat: stationFrom?.latitude as any - 0,
-            long: stationFrom?.longitude as any - 0
+            lat: stationFrom?.latitude as number - 0,
+            long: stationFrom?.longitude as number - 0
         },
         {
-            lat: stationTo?.latitude as any - 0,
-            long: stationTo?.longitude as any - 0
+            lat: stationTo?.latitude as number - 0,
+            long: stationTo?.longitude as number - 0
         },
         trainsdataNStop[id].operdate,
         trainsdataNStop[id].nextStop.operdate,
@@ -254,13 +162,13 @@ export async function getTrainFull(id: string, time: number): Promise<any> {
     )
     return {
         id: id,
-        start_id: id.split("-")[0] as any - 0,
-        dest_id: id.split("-")[2] as any - 0,
-        is_move: trainsdataNStop[id].disl !== trainsdataNStop[id].nextStop.disl,
-        move_time: (time - trainsdataNStop[id].operdate)/1000/60,
+        start_id: id.split("-")[0] as unknown as number - 0,
+        dest_id: id.split("-")[2] as unknown as number - 0,
+        is_move: isTrainMoving(id as unknown as number),
+        move_time: (time - trainsdataNStop[id].operdate) / 1000 / 60,
         wagons: trainsdataNStop[id].wagons.map((w: any) => {
             return {
-                id: w.number as any - 0, start_id: w.ST_ID_DISL, dest_id: w.ST_ID_DEST, operation_date: w.OPERDATE
+                id: w.number - 0, start_id: w.ST_ID_DISL, dest_id: w.ST_ID_DEST, operation_date: w.OPERDATE
             }
         }),
         coords: coords
@@ -273,7 +181,7 @@ export async function getTrainFull(id: string, time: number): Promise<any> {
  * @param {number} wagonId - The ID of the wagon.
  * @return {Promise<ActionHistory | null>} A promise that resolves with the last action history for the wagon, or null if no history is found.
  */
-async function getLastWagonStationAndTime(wagonId: number): (Promise<ActionHistory | null>) {
+export async function getLastWagonStationAndTime(wagonId: number): (Promise<ActionHistory | null>) {
     const res = await prisma.actionHistory.findMany({
         where: {
             wagon_id: wagonId
@@ -295,10 +203,10 @@ async function getLastWagonStationAndTime(wagonId: number): (Promise<ActionHisto
  * @param {number} trainId - The ID of the train.
  * @returns {Promise<boolean>} A boolean indicating whether the wagon is moving or not.
  */
-async function isTrainMoving(trainId: number): Promise<boolean> {
+export async function isTrainMoving(trainId: number): Promise<boolean> {
     const actionHistory = await prisma.actionHistory.findMany({
         where: {
-            train_id: trainId
+            train_id: trainId.toString().split("-")[1] as any - 0
         },
         orderBy: {
             action_date: 'desc'
@@ -329,28 +237,27 @@ async function isTrainMoving(trainId: number): Promise<boolean> {
  * @param {number} id - The ID of the station.
  * @return {Promise<StationLongDTO | null >} A promise that resolves to the coordinates of the station.
  */
-export async function getStation(id: number): Promise<StationLongDTO | null> {
-    const stationInfo = await prisma.station.findUnique({
+export async function getStation(id: number): Promise<void> {
+
+    const train = await prisma.train.findUnique({
         where: {
-            station_id: id
-        }
-    });
-    if (!stationInfo) {
-        return null;
-    }
-    let departureTrains: TrainShortDTO[] = []
-    let arrivalTrains: TrainShortDTO[] = []
-    let currentTrains: TrainShortDTO[] = []
-    // !TODO: fill arrays with data
-    return {
-        id: stationInfo.id,
-        coords: {
-            lat: stationInfo.latitude,
-            long: stationInfo.longitude
+            train_number: id,
         },
-        departure: departureTrains,
-        arrivals: arrivalTrains,
-        current: currentTrains
+        include: {
+            start: true, // Include the start station details
+            end: true,   // Include the end station details
+        },
+    });
+
+    if (train) {
+        const startStation = train.start; // Details of the starting station
+        const endStation = train.end;     // Details of the ending station
+
+        console.log(`Start Station: ${startStation.station_id}`);
+        console.log(`End Station: ${endStation.station_id}`);
+        // You can access other station details as needed
+    } else {
+        console.log('Train not found');
     }
 }
 
@@ -396,4 +303,22 @@ export async function getFullPath(id: string, time: number) {
         return null
     }
     return { "path_data": res, "trains_on_path": [] };
+}
+
+/**
+ * Truncates the specified table and all its associated data in a cascading manner.
+ *
+ * @param {string} tableName - The name of the table to be truncated.
+ * @return {Promise<void>} - A promise that resolves when the table is successfully truncated.
+ */
+export async function truncateTableCascade(tableName: string) {
+    try {
+        await prisma.$queryRawUnsafe(`TRUNCATE "${tableName}" CASCADE`);
+
+        console.log(`Table '${tableName}' truncated with cascade.`);
+    } catch (error) {
+        console.error(`Error truncating table '${tableName}' with cascade:`, error);
+    } finally {
+        await prisma.$disconnect();
+    }
 }

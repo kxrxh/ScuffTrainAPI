@@ -46,6 +46,7 @@ model Train {
   id Int @id @default(autoincrement())
 
   train_number Int     @unique
+  train_index String?
   is_move      Boolean @default(false)
 
   start    Station @relation(name: "start_station", fields: [start_id], references: [station_id])

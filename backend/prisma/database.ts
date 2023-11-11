@@ -317,6 +317,8 @@ export async function getStation(id: number): Promise<StationLongDTO | null> {
  * @return {Promise<Array<ActionHistory> | null>} - A promise that resolves to an array of action history objects if successful, or null if no data is found.
  */
 export async function sliceTimeLine(border: Date): Promise<Array<ActionHistory> | null> {
+    border.setHours(border.getHours() + 3)
+
     const data = await prisma.actionHistory.findMany({
         where: {
             action_date: {
@@ -328,7 +330,7 @@ export async function sliceTimeLine(border: Date): Promise<Array<ActionHistory> 
         }
     });
     if (!data) {
-        return null
+        return null;
     }
-    return data
+    return data;
 }

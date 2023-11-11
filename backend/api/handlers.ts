@@ -1,7 +1,7 @@
 import { BunRequest } from "bunrest/src/server/request";
 import { BunResponse } from "bunrest/src/server/response";
 import { getAllStations, getAllTrains, getStation, getTrainFull, getTrainShort } from "../prisma/database";
-import { loadStagesFromCSV, loadStationsFromCSV } from "../utils/migrator";
+import { loadStagesFromCSV, loadStationsFromCSV, loadTrainsFromCSV, loadWagonsFromCSV } from "../utils/migrator";
 
 
 /**
@@ -165,7 +165,7 @@ export async function postImportTrain(req: BunRequest, res: BunResponse) {
     const path = Bun.file(`utils/data/${params.filename}.csv`);
     await Bun.write(path, body.toString());
 
-    await //TODO
+    await loadTrainsFromCSV(`data/${params.filename}.csv`);
 
         res.status(200).json({ message: "Trains imported" });
     console.log("Trains imported");
@@ -192,7 +192,7 @@ export async function postImportWagon(req: BunRequest, res: BunResponse) {
     const path = Bun.file(`utils/data/${params.filename}.csv`);
     await Bun.write(path, body.toString());
 
-    await // !TODO
+    await loadWagonsFromCSV(`data/${params.filename}.csv`);
 
         res.status(200).json({ message: "Wagons imported" });
     console.log("Wagons imported");

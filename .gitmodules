@@ -1,0 +1,3 @@
+[submodule "scuff-train-frontend"]
+	path = scuff-train-frontend
+	url = https://github.com/TheMixaDev/scuff-train-frontend

@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./prisma/"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stage {
+  id Int @id @default(autoincrement())
+
+  length Float @default(0)
+
+  start    Station @relation(name: "start_stages", fields: [start_id], references: [station_id])
+  start_id Int
+
+  end    Station @relation(name: "end_stages", fields: [end_id], references: [station_id])
+  end_id Int
+
+  @@unique([start_id, end_id])
+}
+
+model Station {
+  id Int @id @default(autoincrement())
+
+  station_id Int   @unique
+  latitude   Float
+  longitude  Float
+
+  start_stages Stage[] @relation(name: "start_stages")
+  end_stages   Stage[] @relation(name: "end_stages")
+
+  start_trains Train[] @relation(name: "start_station")
+  end_trains   Train[] @relation(name: "end_station")
+
+  wagons_destination Wagon[] @relation(name: "wagon_destination")
+
+  actions_disl ActionHistory[] @relation(name: "action_history_dislocation")
+  actions_dest ActionHistory[] @relation(name: "action_history_destination")
+
+  @@map("StationCoordinates")
+}
+
+model Train {
+  id Int @id @default(autoincrement())
+
+  train_number Int     @unique
+  train_index String?
+  is_move      Boolean @default(false)
+
+  start    Station @relation(name: "start_station", fields: [start_id], references: [station_id])
+  start_id Int
+
+  end    Station @relation(name: "end_station", fields: [end_id], references: [station_id])
+  end_id Int
+
+  wagons  Wagon[]
+  actions ActionHistory[] @relation(name: "action_history_train")
+}
+
+model Wagon {
+  id Int @id @default(autoincrement())
+
+  wagon_number Int    @unique
+  train_id     Int?
+  train        Train? @relation(fields: [train_id], references: [train_number])
+
+  destination_id Int
+  destination    Station @relation(fields: [destination_id], references: [station_id], name: "wagon_destination")
+
+  actions ActionHistory[] @relation(name: "action_history_wagon")
+}
+
+model ActionHistory {
+  id          Int      @id @default(autoincrement())
+  action_date DateTime
+
+  train_id Int
+  train    Train @relation(fields: [train_id], references: [train_number], name: "action_history_train")
+
+  wagon_id Int
+  wagon    Wagon @relation(fields: [wagon_id], references: [wagon_number], name: "action_history_wagon")
+
+  destination_id Int
+  destination    Station @relation(fields: [destination_id], references: [station_id], name: "action_history_destination")
+
+  dislocation_id Int
+  dislocation    Station @relation(fields: [dislocation_id], references: [station_id], name: "action_history_dislocation")
+}

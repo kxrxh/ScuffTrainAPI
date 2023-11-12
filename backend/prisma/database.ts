@@ -1,8 +1,7 @@
-import { ActionHistory, PrismaClient } from '@prisma/client';
-import { StationLongDTO, StationShortDTO, TrainFullDTO, TrainShortDTO, WagonShortDTO } from './dto';
-import { Dijkstra, findIntersection, getCurrentCoords } from '../utils/utils';
+import { ActionHistory, PrismaClient } from '.prisma/client';
+import { StationShortDTO, TrainFullDTO, TrainShortDTO } from './dto';
+import { Dijkstra, getCurrentCoords } from '../utils/utils';
 import { trainsdataNStop } from '../utils/data/constants/trainsdataNStop';
-import { COORDS } from '../utils/data/constants/COORDS';
 
 const prisma = new PrismaClient();
 

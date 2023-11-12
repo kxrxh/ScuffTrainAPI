@@ -7,7 +7,7 @@ import cors from "buncors";
  */
 function main() {
     
-    const port = process.env.PORT || 5051;
+    const port = process.env.PORT || 3000;
     
     const app = server();
     app.use(cors());

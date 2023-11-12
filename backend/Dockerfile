@@ -1,15 +1,19 @@
 FROM oven/bun:latest
+WORKDIR /opt/app
 
-WORKDIR /app
+COPY --from=node:18 /usr/local/bin/node /usr/local/bin/node
+COPY ./package.json ./
+COPY ./bun.lockb ./
 
-COPY package*.json ./
-
-# generated prisma files
-COPY prisma ./prisma/
-
+# Install packages
 RUN bun install
-RUN bunx prisma generate
 
+# Run generation
 COPY . .
 
-EXPOSE 3030
+RUN bunx prisma generate
+
+
+EXPOSE 3000
+
+CMD ["bun", "start"]

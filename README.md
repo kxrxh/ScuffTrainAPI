@@ -1,143 +1,136 @@
-# Scuff Train API Routes
-## Api handlers
-### `getWagonsByTrainId`
+# Prerequisites
 
--   **Description**: This handler retrieves the wagons associated with a specific train ID.
+1.  **Install Docker:** If you don't already have Docker installed, you can download and install it from the official Docker website based on your operating system:
     
--   **Parameters**:
+    -   [Docker for Windows](https://docs.docker.com/desktop/install/windows-install/)
+    -   [Docker for macOS](https://docs.docker.com/desktop/install/mac-install/)
+    -   [Docker for Linux](https://docs.docker.com/desktop/install/linux-install/)
+2.  **Install Docker Compose:** Docker Compose is usually included with Docker Desktop on Windows and macOS. For Linux users, you might need to install Docker Compose separately. You can find installation instructions in the [Docker Compose documentation](https://docs.docker.com/compose/install/).
     
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This function currently throws an error ("Function not implemented"). It appears that the functionality for retrieving wagons by a train ID is not yet implemented.
+3.  **Ensure Prerequisites:**
     
+    -   Make sure that you have the required project directory structure in place with the `backend` and `frontend` subdirectories and any necessary code.
+    -   Ensure that you have a PostgreSQL initialization script in the `./InitDatabase` directory, as the Docker Compose file references it to initialize the database.
+4.  **Build and Run the Docker Compose Configuration:**
+    
+    -   Navigate to the directory containing your `docker-compose.yml` file.
+        
+    -   Open a terminal or command prompt.
+        
+    -   Run the following command to start the services defined in the Docker Compose file:
+        
+        shellCopy code
+        
+        `docker-compose up`         
+    
+    This command will build and run the containers as defined in the `docker-compose.yml` file.
+    
+5.  **Access the Services:**
+    
+    -   Once the services are up and running, you should be able to access the backend API at `http://localhost:3030` and the frontend at `http://localhost:5173`, PostgreSQL at `http://localhost:5432`.
 
-### `getStationCoordsById`
 
--   **Description**: This handler retrieves the coordinates of a station by its ID.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This handler first checks the request body for validity. It checks if there is a body and if it is an object. If the body is missing or not an object, it returns a 400 Bad Request response with an appropriate error message. If the body is valid, it proceeds to extract the `station_id` from the body and retrieves the coordinates for the specified station ID using the `getStationCoords` function. Finally, it returns a 200 OK response with the coordinates.
-    
+# DB
 
-### `getStationStages`
+## Database Schema
 
--   **Description**: This handler retrieves all available destinations for a given origin with road length.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: Similar to `getStationCoordsById`, this handler also checks the request body for validity, ensuring it is an object and contains the `origin_id`. If the body is missing or invalid, it returns a 400 Bad Request response with an appropriate error message. If the body is valid, it extracts the `origin_id`, and then it retrieves the stages for the specified origin using the `getStagesByOrigin` function. Finally, it returns a 200 OK response with the stages.
-    
+![schena](03.15.56.png)
 
-### `getStations`
+# REST
+## PING Endpoint
 
--   **Description**: This handler retrieves all available stations.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This handler does not validate any request body or parameters. It directly returns a 200 OK response with a JSON object containing all available stations obtained by calling the `getAllStations` function.
-    
+-   **Endpoint:** `/v1/ping`
+-   **HTTP Method:** GET
+-   **Description:** This endpoint is used to ping the server and get a "pong" response along with the current server time.
 
-### `getTrains`
+## Station Endpoints
 
--   **Description**: This handler is meant to retrieve all available trains.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This function currently throws an error ("Function not implemented"), indicating that the functionality for retrieving all available trains is not yet implemented.
-    
+### Get Station by ID
 
-### `getTrainById`
+-   **Endpoint:** `/v1/station/id/:id`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve information about a station by its ID.
 
--   **Description**: This handler is supposed to retrieve train information by its ID.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This function currently throws an error ("Function not implemented"), indicating that the functionality for retrieving train information by its ID is not yet implemented.
-    
+### Get All Stations
 
-### `getTrainsByDestination`
+-   **Endpoint:** `/v1/station/all`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve a list of all available stations.
 
--   **Description**: This handler is intended to retrieve train information by the given destination ID.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This function currently throws an error ("Function not implemented"), indicating that the functionality for retrieving train information by the destination ID is not yet implemented.
-    
+## Train Endpoints
 
-### `getTrainsByOrigin`
+### Get All Trains
 
--   **Description**: This handler is meant to retrieve train information by the given origin ID.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This function currently throws an error ("Function not implemented"), indicating that the functionality for retrieving train information by the origin ID is not yet implemented.
-    
+-   **Endpoint:** `/v1/train/all`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve a list of all available trains.
 
-### `postUploadFile`
+### Get Trains by Time
 
--   **Description**: This handler allows the uploading of a file, typically a CSV file.
-    
--   **Parameters**:
-    
-    -   `req`: The request object.
-    -   `res`: The response object.
--   **Implementation**: This handler first checks the request body and parameters for validity. It ensures that both the body and parameters are present and that the `filename` parameter is provided. If any of these checks fail, it returns a 400 Bad Request response with an appropriate error message. If the checks pass, it constructs a file path based on the provided `filename` and writes the content from the request body to that file path. Finally, it returns a 200 OK response with a message indicating the successful upload of the file.
-    
+-   **Endpoint:** `/v1/train/all/:time`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve a list of trains based on a specified time.
 
-## Endpoints and Handlers
+### Get Train by ID (Short)
 
-### GET Endpoints
+-   **Endpoint:** `/v1/train/short/:id/:time`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve information about a specific train by its ID and time.
 
-1.  `/ping`
-    
-    -   **Handler**: Responds with "pong" and the current timestamp.
-2.  `/station/all`
-    
-    -   **Handler**: Calls the `getStations` function to retrieve all available stations.
-3.  `/train/all`
-    
-    -   **Handler**: Calls the `getTrains` function to retrieve all available trains.
+### Get State of a Moving Train
 
-### POST Endpoints
+-   **Endpoint:** `/v1/train/is_moving/:id`
+-   **HTTP Method:** GET
+-   **Description:** Check the state of a moving train using its ID.
 
-1.  `/station/coords`
-    
-    -   **Handler**: Calls the `getStationCoordsById` function to retrieve station coordinates by ID.
-2.  `/station/stages`
-    
-    -   **Handler**: Calls the `getStationStages` function to retrieve stages for a given station origin.
-3.  `/train/origin/`
-    
-    -   **Handler**: Calls the `getTrainsByOrigin` function to retrieve train information by the given origin ID.
-4.  `/train/destination/`
-    
-    -   **Handler**: Calls the `getTrainsByDestination` function to retrieve train information by the given destination ID.
-5.  `/train/id/`
-    
-    -   **Handler**: Calls the `getTrainById` function to retrieve train information by its ID.
+### Get Last Station Time for a Train
 
-### File Upload
+-   **Endpoint:** `/v1/train/last_station_time/:id`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve the time of the last station for a specific train.
 
--   `/upload/:filename`
-    -   **Handler**: Calls the `postUploadFile` function to handle file uploads. It expects a filename parameter in the URL and handles file upload operations.
+### Get Train by ID (Full)
 
-## Integration with the App
+-   **Endpoint:** `/v1/train/full/:id/:time`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve detailed information about a specific train by its ID and time.
 
--   `app.use('/v1/', routerV1);`: Integrates the router (`routerV1`) into the app, providing a base URL path of `/v1/` for these API endpoints.
+### Get Full Path Info for a Train
 
-updated @11/11, 12:11 AM
+-   **Endpoint:** `/v1/train/path/full/:id/:time`
+-   **HTTP Method:** GET
+-   **Description:** Retrieve the full path information for a specific train.
+
+## Import Endpoints
+
+### Import Station Data
+
+-   **Endpoint:** `/v1/import/station/:filename`
+-   **HTTP Method:** POST
+-   **Description:** Import station data from a specified file.
+
+### Import Stage Data
+
+-   **Endpoint:** `/v1/import/stage/:filename`
+-   **HTTP Method:** POST
+-   **Description:** Import stage data from a specified file.
+
+### Import Wagon Data
+
+-   **Endpoint:** `/v1/import/wagon/:filename`
+-   **HTTP Method:** POST
+-   **Description:** Import wagon data from a specified file.
+
+### Import Train Data
+
+-   **Endpoint:** `/v1/import/train/:filename`
+-   **HTTP Method:** POST
+-   **Description:** Import train data from a specified file.
+
+## Delete Endpoint
+
+### Delete Database Table
+
+-   **Endpoint:** `/v1/delete/db_table/:table`
+-   **HTTP Method:** DELETE
+-   **Description:** Delete a specific database table by its name.

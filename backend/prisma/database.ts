@@ -1,5 +1,5 @@
 import { ActionHistory, PrismaClient } from '@prisma/client';
-import { StationShortDTO, TrainFullDTO, TrainShortDTO } from './dto';
+import { StationShortDTO, TrainShortDTO } from './dto';
 import { Dijkstra, getCurrentCoords } from '../utils/utils';
 import { trainsdataNStop } from '../utils/data/constants/trainsdataNStop';
 

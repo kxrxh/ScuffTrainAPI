@@ -16,6 +16,11 @@
             }
         },
         methods: {
+            /**
+             * Closes the component.
+             *
+             * @return {void}
+             */
             close() {
                 this.closing = true;
                 setTimeout(() => {

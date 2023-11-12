@@ -57,13 +57,33 @@
       }
     },
     methods: {
+        /**
+         * Close the component and emit a 'close' event.
+         *
+         * @param {type} paramName - description of parameter
+         * @return {type} description of return value
+         */
         close() {
             this.$emit('close');
         }
     },
+    /**
+     * Mounts the component.
+     *
+     * When the component is mounted, this function is called.
+     * It sets up the connection storage using the FrontEndService's
+     * `setupConnectionStorage` method, passing in the name of the
+     * slide menu plus the name of the component (`this.name`) and
+     * the `this.close` method as arguments.
+     *
+     * @return {void}
+     */
     mounted() {
       this.connection = FrontEndService.setupConnectionStorage("slideMenu"+this.name, this.close);
     },
+    /**
+     * Called right before the component is unmounted.
+     */
     beforeUnmount() {
       FrontEndService.removeConnectionStorage(this.connection);
     }

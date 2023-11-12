@@ -19,6 +19,12 @@ export default {
         }
     },
     watch: {
+        /**
+         * Opens the component.
+         *
+         * @param {type} newValue - The new value.
+         * @return {void} 
+         */
         open(newValue) {
             if(newValue) this.show = true;
             else {
@@ -29,6 +35,12 @@ export default {
         }
     },
     methods: {
+        /**
+         * Closes the component.
+         *
+         * @param {void} 
+         * @return {void} 
+         */
         close() {
             this.$emit('close');
         }

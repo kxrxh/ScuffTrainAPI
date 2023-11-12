@@ -116,6 +116,11 @@ export default {
         }
     },
     methods: {
+        /**
+         * Sets the path of the map.
+         *
+         * @param {Object} pathData - The data for the path.
+         */
         setPath(pathData) {
             if(!this.mapReady) return;
             const map = this.$refs.map.map;
@@ -137,20 +142,31 @@ export default {
             map.addLayer(this.pathLayer);
             //map.fitBounds(this.pathLayer.getBounds());
         },
-        initializeMap() {
-            
-        },
+        /**
+         * Check if the "map" property of the "$refs" object is not null.
+         * If it is not null, clear the "nullInterval" and set "mapReady" to true.
+         */
         checkIsNotNull() {
             if(this.$refs.map.map) {
                 clearInterval(this.nullInterval);
                 this.mapReady = true;
-                this.initializeMap();
             }
         },
+        /**
+         * Centers the map to the specified coordinates and zoom level.
+         *
+         * @param {Array} coordinates - The coordinates to center the map on.
+         * @param {Number} zoom - The zoom level of the map.
+         */
         centerMap(coordinates, zoom) {
             if(!this.mapReady) return;
             this.$refs.map.map.setView(coordinates, zoom);
         },
+        /**
+         * Handles the action based on the provided data.
+         *
+         * @param {Object} data - The data object containing the action information.
+         */
         onAction(data) {
             if(data.action == "center") {
                 if(data.show && data.show.type == "station") {
@@ -163,6 +179,11 @@ export default {
                 }
             }
         },
+        /**
+         * Focuses on a specific train.
+         *
+         * @param {number} trainId - The ID of the train to focus on.
+         */
         focusOnTrain(trainId) {
             TrainService.getFullTrain(trainId, train => {
                 train = train.train;
@@ -181,44 +202,74 @@ export default {
                 })
             }, this.handleError);
         },
+        /**
+         * Remove the focus on the train and clear the additional trains.
+         * If a path layer exists, remove it from the map.
+         */
         removeTrainFocus() {
             this.currentTrain = -1;
             this.additionalTrains = [];
             if(this.pathLayer != null)
                 this.$refs.map.map.removeLayer(this.pathLayer);
         },
+        /**
+         * Retrieves and displays station data.
+         *
+         * @param {Object} station - The station object containing the ID.
+         * @return {undefined} No return value.
+         */
         showStationData(station) {
             StationService.getStation(station.id, data => {
                 this.stationData.station = data;
                 this.stationData.showModal = true;
             }, this.handleError);
         },
+        /**
+         * Handle an error.
+         *
+         * @param {any} err - The error to handle.
+         */
         handleError(err) {
             FrontEndService.defaultErrorHandler(this.$router, err);
         },
+        /**
+         * Move the pulse position for debugging purposes.
+         *
+         * @return {void}
+         */
         movePulsePosition() { //debugging
             this.position = [this.position[0]+0.1, this.position[1]];
             return;
         },
+        /**
+         * Updates the trains data.
+         *
+         * @return {undefined} No return value.
+         */
         updateTrainsData() {
             if(this.currentTrain < 0) return;
-            /*TrainService.getTrainPathFull(this.currentTrain, path => {
-                path = path.path;
-                /*this.additionalTrains = path.trains_on_path
-                    .filter(t => t.id != this.currentTrain)
-                    .map(t => ({ id: t.id, coords: FrontEndService.convertCoords(t.coords) }));
-            }, this.handleError);*/
             TrainService.getShortTrain(this.currentTrain, train => {
                 train = train.train;
                 this.position = FrontEndService.convertCoords(train.coords);
             }, this.handleError)
         }
     },
+    /**
+     * Mount the component and initialize necessary variables and intervals.
+     *
+     * @param {void}
+     * @return {void}
+     */
     mounted() {
         this.nullInterval = setInterval(this.checkIsNotNull, 0);
         this.connection = FrontEndService.setupConnectionStorage("map", this.onAction);
         this.updateInterval = setInterval(this.updateTrainsData, 3000);
     },
+    /**
+     * Unmounts the component before it is destroyed.
+     *
+     * @return {void} 
+     */
     beforeUnmount() {
         FrontEndService.removeConnectionStorage(this.connection);
         clearInterval(this.updateInterval);

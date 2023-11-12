@@ -44,21 +44,48 @@ export default {
         }
     },
     methods: {
-        _0() {},
+        /**
+         * Fetches stations using the StationService API.
+         *
+         * @param {function} callback - The callback function to handle the response data.
+         * @param {function} errorCallback - The callback function to handle any errors.
+         * @return {void} This function does not return a value.
+         */
         fetchStations() {
             StationService.getAllStations(data => {
                 this.stations = data.stations;
             }, this.handleError);
         },
+        /**
+         * Fetches trains from TrainService and assigns the retrieved train cars to 
+         * the 'trainCars' property of the component.
+         *
+         * @param {function} successCallback - A callback function to handle the 
+         *   successful retrieval of trains.
+         * @param {function} errorCallback - A callback function to handle any errors 
+         *   that occur during the retrieval of trains.
+         */
         fetchTrains() {
             TrainService.getAllTrains(data => {
                 this.trainCars = data.trains;
             }, this.handleError);
         },
+        /**
+         * Handles the given error.
+         *
+         * @param {Error} err - The error to handle.
+         */
         handleError(err) {
             FrontEndService.defaultErrorHandler(this.$router, err);
         }
     },
+    /**
+     * Executes when the component is mounted.
+     * Fetches the stations and trains.
+     *
+     * @param {type} paramName - description of parameter
+     * @return {type} description of return value
+     */
     mounted() {
         this.fetchStations();
         this.fetchTrains();

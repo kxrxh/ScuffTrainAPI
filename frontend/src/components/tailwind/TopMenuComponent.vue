@@ -68,13 +68,18 @@
         return {
             time: "--:--:--",
             navigation: [
-              //{ name: 'Экспорт', click: 'export', current: false },
               { name: 'Список станций', click: 'stations', current: false },
               { name: 'Список поездов', click: 'trains', current: false },
             ]
         }
     },
     methods: {
+        /**
+         * Updates the time.
+         *
+         * @param None
+         * @return None
+         */
         updateTime() {
           const now = new Date();
           const hours = now.getHours().toString().padStart(2, "0");
@@ -86,25 +91,46 @@
 
           this.time = `${dateStr} ${hours}:${minutes}:${seconds}`;
         },
+        /**
+         * Emits the specified event.
+         *
+         * @param {string} event - The name of the event to emit.
+         * @return {void} This function does not return anything.
+         */
         emitter(event) {
             this.$emit(event);
         },
+        /**
+         * Opens an input dialog.
+         *
+         * @param {type} - No parameters.
+         * @return {type} - No return value.
+         */
         openInputDialog() {
             this.refs.fileInput.click();
         },
+        /**
+         * Handles the change event of the file input.
+         *
+         * @param {Event} event - The change event object.
+         */
         handleFileChange(event) {
           if(event.target.files.length > 0) {
             const file = event.target.files[0];
             const reader = new FileReader();
-            reader.onload = () => {
-              //let fileContent = e.target.result;
-              //let filename = file.name;
-              // TODO send to backend
-            };
             reader.readAsText(file);
           }
         }
     },
+    /**
+     * Mounts the component and updates the time periodically.
+     *
+     * This function is called when the component is mounted to the DOM.
+     * It initializes the time and sets up a timer to update the time every 100 milliseconds.
+     *
+     * @param {none} - This function does not accept any parameters.
+     * @return {none} - This function does not return any value.
+     */
     mounted() {
         this.updateTime();
         setInterval(this.updateTime, 100);

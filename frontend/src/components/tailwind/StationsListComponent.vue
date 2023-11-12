@@ -52,6 +52,11 @@ export default {
         }
     },
     methods: {
+        /**
+         * Handles the click event for a station.
+         *
+         * @param {Object} station - The station object.
+         */
         handleClick(station) {
             FrontEndService.setConnectionStorage("map", {
                 action: "center",

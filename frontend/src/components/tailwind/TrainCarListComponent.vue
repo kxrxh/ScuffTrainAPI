@@ -58,6 +58,12 @@ export default {
         }
     },
     methods: {
+        /**
+         * Handles the click event for a train car.
+         *
+         * @param {Object} trainCar - The train car that was clicked.
+         * @return {void} This function does not return a value.
+         */
         handleClick(trainCar) {
             FrontEndService.setConnectionStorage("map", {
                 action: "center",

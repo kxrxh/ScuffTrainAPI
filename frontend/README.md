@@ -1,35 +1,18 @@
-# scuff-train-front
+## Описание проекта
 
-This template should help get you started developing with Vue 3 in Vite.
+Проблема отсутствия системы отслеживания движения поездов в реальном времени приводит к неэффективному управлению загрузкой сети и задержкам в доставке грузов. Диспетчерам необходим инструмент, который обеспечивает оперативное отслеживание маршрутов поездов и составов вагонов.
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+## Основные задачи
+1. Визуализация маршрутов поездов на интерактивной карте.
+2. Отображение информации о направлении движения поезда, выбранном маршруте и составе вагонов.
+3. Удобный интерфейс для диспетчеров, обеспечивающий быстрый доступ к необходимой информации.
+## Функциональности
+- Отслеживание маршрутов: Отображение актуальных маршрутов поездов с подробной информацией.
+- Интерактивная карта: Интуитивно понятная карта с возможностью масштабирования и перемещения.
+- Детальная информация о поездах: Подробные сведения о каждом поезде, включая пункт назначения и состав вагонов.
+- Удобный поиск и фильтрация: Мгновенный поиск поездов, фильтрация по различным критериям.
+## Технологии
+- Язык программирования: JavaScript
+- Фреймворк: Vue 3 + Vite
+- Картографическая библиотека: Leaflet
+- Взаимодействие с бэкендом: RESTful API
